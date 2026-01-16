@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <h1>Prévisions météorologique</h1>
+    <div>
+        <div id="latitude">
+            <label for="latitude">Latitude</label> <input type="text" name="latitude" id="latitudeInput">
+        </div>
+        <div id="longitude">
+            <label for="longitude">Longitude</label> <input type="text" name="longitude" id="longitudeInput">
+        </div>
+        <button onclick="loadInformations()">Rechercher</button>
+    </div>
+
+    <script src="scripts/apiCalls.js"></script>
+    <script src="scripts/script.js"></script>
+
+</body>
+
+</html>

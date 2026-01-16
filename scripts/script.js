@@ -11,14 +11,14 @@ async function loadInformations(){
         let dataLine = null
         for(let i = 0; i < p.hourly.time.length; i++){
             dataLine = document.createElement("div")
-            dataLine.classList.add("dataLine")
-            
             let time = document.createElement("p")
             time.textContent = p.hourly.time[i]
             let temperature = document.createElement("p")
-            temperature.textContent = p.hourly.temperature_2m[i]
+            temperature.textContent = `${p.hourly.temperature_2m[i]} °C`
+            dataLine.classList.add("dataLine")
             dataLine.appendChild(time)
             dataLine.appendChild(temperature)
+            
             datas.appendChild(dataLine)
         }
 

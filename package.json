@@ -1,0 +1,24 @@
+{
+  "name": "meteo",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/JohanLG20/weather-application#readme",
+  "bugs": {
+    "url": "https://github.com/JohanLG20/weather-application/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JohanLG20/weather-application.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "sass":"sass --watch sass/style.scss:css/style.css"
+  },
+  "dependencies": {
+    "sass": "^1.97.2"
+  }
+}

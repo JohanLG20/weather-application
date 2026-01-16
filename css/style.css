@@ -1,0 +1,10 @@
+#datas {
+  display: flex;
+  flex-direction: column;
+}
+#datas .dataLine {
+  display: flex;
+  gap: 16px;
+}
+
+/*# sourceMappingURL=style.css.map */

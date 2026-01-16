@@ -1,0 +1,8 @@
+#datas{
+    display: flex;
+    flex-direction: column;
+    .dataLine{
+        display: flex;
+        gap: 16px;
+    }
+}

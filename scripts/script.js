@@ -3,7 +3,7 @@ async function loadInformations(){
     let longitude = parseFloat(document.querySelector("#longitudeInput").value)
 
     if(!isNaN(latitude) && !isNaN(longitude)){ 
-        const p = await getAllInfos(latitude, longitude)
+        const p = await getTemperatureAtLocation(latitude, longitude)
         console.log(p)
     }
     else{

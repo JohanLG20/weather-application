@@ -1,26 +1,15 @@
+
 let loadedValues = new Map()
 let currentDay = 0
+
 /*
     Function that loads the informations from the API from the latitude and the longitude given by the user.
 */
-async function loadTemperatureInformations() {
-    let latitude = parseFloat(document.querySelector("#latitudeInput").value)
-    let longitude = parseFloat(document.querySelector("#longitudeInput").value)
-
-
-    //Checking if the values given by the user are corrects
-    if (!isNaN(latitude) && !isNaN(longitude)) {
-
-        //Getting all the info from the API call
-        const p = await getTemperatureAtLocation(latitude, longitude)
-        loadedValues = splitTemperatureValuesDayByDay(p.hourly)
-        displayInfosOfDay(currentDay)
-
-    }
-    else {
-        alert("Veuillez rentrer une latitude et une longitude")
-    }
-
+async function loadInformations(latitude, longitude, infoToLoad) {
+    //Getting all the info from the API call
+    const p = await getValuesAtLocation(latitude, longitude, infoToLoad)
+    loadedValues = splitValuesDayByDay(p.hourly, infoToLoad)
+    displayInfosOfDay(currentDay, infoToLoad)
 
 }
 
@@ -29,29 +18,30 @@ async function loadTemperatureInformations() {
     Parameter : -values : An object that contain two arrays, one for the time and the other for the temperature
     Return : A map object of DayValue
 */
-function splitTemperatureValuesDayByDay(values) {
+function splitValuesDayByDay(values) {
+    console.log(Object.values(values)[1])
     let splittedValue = new Map()
     let tempTime = [values.time[0]]
-    let tempTemperature = [Math.round(values.temperature_2m[0])]
+    let tempValue = [Math.round(Object.values(values)[1][0])]
     let dayCounter = 0
     console.log(values)
-    for(let i = 1; i < values.time.length; i++){
+    for (let i = 1; i < values.time.length; i++) {
 
         //We compare the dates of the current tested value and the last
-        if(values.time[i].split("T")[0] !== values.time[i-1].split("T")[0]){
+        if (values.time[i].split("T")[0] !== values.time[i - 1].split("T")[0]) {
             //Adding the value to the loadedDatas
-            splittedValue.set(dayCounter, new DayValues(values.time[i-1].split("T")[0], tempTime, tempTemperature))
+            splittedValue.set(dayCounter, new DayValues(values.time[i - 1].split("T")[0], tempTime, tempValue))
             tempTime = []
-            tempTemperature = []
+            tempValue = []
             dayCounter++
         }
 
         tempTime.push(values.time[i])
-        tempTemperature.push(Math.round(values.temperature_2m[i]))
+        tempValue.push(Math.round(Object.values(values)[1][i]))
 
     }
-    splittedValue.set(dayCounter, new DayValues(values.time[values.time.length-1].split("T")[0], tempTime, tempTemperature))
-    
+    splittedValue.set(dayCounter, new DayValues(values.time[values.time.length - 1].split("T")[0], tempTime, tempValue))
+
     return splittedValue
 
 }
@@ -60,8 +50,8 @@ function splitTemperatureValuesDayByDay(values) {
     Build a div that will contains all the datas of the current day. This div will replace the current one.
     Parameter : - day : A number that contains the day we want to display
 */
-function displayInfosOfDay(day) {
-    console.log(loadedValues)
+function displayInfosOfDay(day, infoToDisplay) {
+
     let datas = document.querySelector("#datas")
     let valuesToDisplay = loadedValues.get(day)
     let weatherInformations = document.createElement("div")
@@ -77,20 +67,40 @@ function displayInfosOfDay(day) {
         //Creating the elements
         dataLine = document.createElement("div")
         let time = document.createElement("p")
-        let temperature = document.createElement("p")
+        let val = document.createElement("p")
         dataLine.classList.add("dataLine")
 
         //Adding the corresponding value to the elements
         time.textContent = valuesToDisplay.time[i].split("T")[1]
-        temperature.textContent = `${valuesToDisplay.temperature[i]} °C`
+        val.textContent = `${valuesToDisplay.value[i]}${getCorrectMeasure(infoToDisplay)}` //We add the unit after the value
 
         //Adding the elements to the page
         dataLine.appendChild(time)
-        dataLine.appendChild(temperature)
+        dataLine.appendChild(val)
         weatherInformations.appendChild(dataLine)
     }
 
     //Replacing the current displayed infos by the ones resquested
     datas.children[0].replaceWith(weatherInformations)
 
+}
+
+/*
+    Return the unit of measure of the given parameter.
+    Parameter : -info: A string that contain the unit we want. Note, the info as to be the parameter of the API to work
+*/
+
+function getCorrectMeasure(info){
+    switch(info){
+        case "temperature_2m":
+            return "°"
+            break;
+        case "relative_humidity_2m":
+            return "%"
+            break;
+        case "wind_speed_10m":
+            return "kmh/h"
+        default:
+            return ""
+    }
 }

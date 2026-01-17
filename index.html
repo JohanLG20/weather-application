@@ -20,7 +20,12 @@
             <div id="longitude">
                 <label for="longitude">Longitude</label> <input type="text" name="longitude" id="longitudeInput">
             </div>
-            <button onclick="loadTemperatureInformations()">Rechercher</button>
+            <select name="valueToObserve" id="valueToObserve">
+                <option value="temperature">Température</option>
+                <option value="humidity">Humidité</option>
+                <option value="wind">Vent</option>
+            </select>
+            <button id="searchButton">Rechercher</button>
         </div>
 
         <div id="datas">

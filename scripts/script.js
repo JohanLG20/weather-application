@@ -3,7 +3,7 @@ let currentDay = 0
 /*
     Function that loads the informations from the API from the latitude and the longitude given by the user.
 */
-async function loadInformations() {
+async function loadTemperatureInformations() {
     let latitude = parseFloat(document.querySelector("#latitudeInput").value)
     let longitude = parseFloat(document.querySelector("#longitudeInput").value)
 
@@ -13,7 +13,7 @@ async function loadInformations() {
 
         //Getting all the info from the API call
         const p = await getTemperatureAtLocation(latitude, longitude)
-        splitValuesDayByDay(p.hourly)
+        loadedValues = splitTemperatureValuesDayByDay(p.hourly)
         displayInfosOfDay(currentDay)
 
     }
@@ -24,7 +24,13 @@ async function loadInformations() {
 
 }
 
-function splitValuesDayByDay(values) {
+/* 
+    Function that return a map where each value is a DayValue that contain all the values for one day.
+    Parameter : -values : An object that contain two arrays, one for the time and the other for the temperature
+    Return : A map object of DayValue
+*/
+function splitTemperatureValuesDayByDay(values) {
+    let splittedValue = new Map()
     let tempTime = [values.time[0]]
     let tempTemperature = [Math.round(values.temperature_2m[0])]
     let dayCounter = 0
@@ -34,7 +40,7 @@ function splitValuesDayByDay(values) {
         //We compare the dates of the current tested value and the last
         if(values.time[i].split("T")[0] !== values.time[i-1].split("T")[0]){
             //Adding the value to the loadedDatas
-            loadedValues.set(dayCounter, new DayValues(values.time[i-1].split("T")[0], tempTime, tempTemperature))
+            splittedValue.set(dayCounter, new DayValues(values.time[i-1].split("T")[0], tempTime, tempTemperature))
             tempTime = []
             tempTemperature = []
             dayCounter++
@@ -44,12 +50,18 @@ function splitValuesDayByDay(values) {
         tempTemperature.push(Math.round(values.temperature_2m[i]))
 
     }
-    loadedValues.set(dayCounter, new DayValues(values.time[values.time.length-1].split("T")[0], tempTime, tempTemperature))
-    console.log(loadedValues)
+    splittedValue.set(dayCounter, new DayValues(values.time[values.time.length-1].split("T")[0], tempTime, tempTemperature))
+    
+    return splittedValue
 
 }
 
+/*
+    Build a div that will contains all the datas of the current day. This div will replace the current one.
+    Parameter : - day : A number that contains the day we want to display
+*/
 function displayInfosOfDay(day) {
+    console.log(loadedValues)
     let datas = document.querySelector("#datas")
     let valuesToDisplay = loadedValues.get(day)
     let weatherInformations = document.createElement("div")
@@ -77,6 +89,7 @@ function displayInfosOfDay(day) {
         dataLine.appendChild(temperature)
         weatherInformations.appendChild(dataLine)
     }
+
     //Replacing the current displayed infos by the ones resquested
     datas.children[0].replaceWith(weatherInformations)
 

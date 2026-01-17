@@ -10,21 +10,33 @@
 
 <body>
 
-    <h1>Prévisions météorologique</h1>
-    <div>
-        <div id="latitude">
-            <label for="latitude">Latitude</label> <input type="text" name="latitude" id="latitudeInput">
-        </div>
-        <div id="longitude">
-            <label for="longitude">Longitude</label> <input type="text" name="longitude" id="longitudeInput">
-        </div>
-        <button onclick="loadInformations()">Rechercher</button>
-    </div>
-    <div id="datas">
 
-    </div>
+    <main class="container">
+        <h1>Prévisions météorologique</h1>
+        <div id="searchMenu">
+            <div id="latitude">
+                <label for="latitude">Latitude</label> <input type="text" name="latitude" id="latitudeInput">
+            </div>
+            <div id="longitude">
+                <label for="longitude">Longitude</label> <input type="text" name="longitude" id="longitudeInput">
+            </div>
+            <button onclick="loadInformations()">Rechercher</button>
+        </div>
+
+        <div id="datas">
+            <div id="weatherInformations"></div>
+            <div id="buttons">
+                <button id="previousDayButton">Jour précédant</button>
+                <button id="nextDayButton">Jour suivant</button>
+            </div>
+
+        </div>
+
+    </main>
 
     <script src="scripts/apiCalls.js"></script>
+    <script src="scripts/listeners.js"></script>
+    <script src="scripts/DayValues.js"></script>
     <script src="scripts/script.js"></script>
 
 </body>

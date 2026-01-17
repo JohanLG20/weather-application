@@ -1,8 +1,58 @@
-#datas{
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.container {
+    max-width: 1000px;
+    width: 100%;
+    margin: 48px auto;
     display: flex;
     flex-direction: column;
-    .dataLine{
+    align-items: center;
+    gap: 32px;
+}
+
+#searchMenu {
+    display: flex;
+    gap: 16px;
+    width: fit-content;
+}
+
+#datas {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 32px;
+
+    .weatherInformations {
         display: flex;
-        gap: 16px;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+
+        h2{
+            text-align: center;
+            color: blue;
+            margin-bottom: 16px;
+        }
+        
+        .dataLine {
+            display: flex;
+            gap: 16px;
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+
+    #buttons {
+        display: flex;
+        width: 100%;
+        justify-content: space-around;
+
+        button {
+            padding: 8px 16px;
+        }
     }
 }

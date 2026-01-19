@@ -10,15 +10,7 @@ searchButtonLatLong.addEventListener("click", async () => {
 
     if (!isNaN(latitude) && !isNaN(longitude)) {
         //Loading the information
-        if (valueToObserve === "temperature") await loadInformations(latitude, longitude, "temperature_2m")
-        else if (valueToObserve === "humidity") await loadInformations(latitude, longitude, "relative_humidity_2m")
-        else if (valueToObserve === "wind") await loadInformations(latitude, longitude, "wind_speed_10m")
-        else alert('Une erreur est survenue, veuillez réessayer')
-
-        //Make the data visible
-        let datas = document.querySelector("#datas")
-        datas.classList.remove("hidden")
-        datas.classList.add("visible")
+        await loadInformations(latitude, longitude, valueToObserve)
 
         displayRequestedDataForm() //Displaying the information
         
@@ -30,10 +22,34 @@ searchButtonLatLong.addEventListener("click", async () => {
 })
 
 let searchButtonAddress = document.querySelector("#searchButtonAddress")
-
 searchButtonAddress.addEventListener("click", ()=>{
     alert("yiha")
 })
+
+/*
+    Input text modification
+*/
+let searchAddressInput = document.querySelector("#searchAddressInput")
+searchAddressInput.addEventListener("input", () =>{
+    let searchPreview = document.querySelector("#searchPreview")
+    if(searchAddressInput.value.length > 2){ // The api doesn't return anything if there is too few characters   
+        searchPreview.classList.remove("hidden")
+        searchPreview.classList.add("visible")
+        fetch(`https://data.geopf.fr/geocodage/search?q=${searchAddressInput.value}&limit=5`)
+        .then(r => r.json())
+            .then(preview => displaySearchPreview(preview.features))
+        .catch((e) => console.log(e))
+
+    }
+
+    else{ //Hidding the preview
+        searchPreview.classList.add("hidden")
+        searchPreview.classList.remove("visible")
+
+    }
+    
+})
+
 /*
     Preview Menu Type selection buttons
 */

@@ -6,8 +6,14 @@ let currentDay = 0
 */
 async function loadInformations(latitude, longitude, infoToLoad) {
     //Getting all the info from the API call
-    const p = await getValuesAtLocation(latitude, longitude, infoToLoad)
-    loadedValues = splitValuesDayByDay(p.hourly, infoToLoad)
+    let apiNameOfValue = ""
+
+    if (infoToLoad === "temperature") apiNameOfValue = "temperature_2m"
+    else if (infoToLoad === "humidity") apiNameOfValue = "relative_humidity_2m"
+    else if (infoToLoad === "wind") apiNameOfValue = "wind_speed_10m"
+
+    const p = await getValuesAtLocation(latitude, longitude, apiNameOfValue)
+    loadedValues = splitValuesDayByDay(p.hourly, apiNameOfValue)
 
 }
 
@@ -59,14 +65,14 @@ function displayInfosOfDay(day) {
     setTitle(loadedValues.get(day).day)
 
     let weatherInformations = document.querySelector("#weatherInformations")
-    
-    if(weatherInformations.children.length > 0){
-        for(let i = weatherInformations.children.length - 1; i >=0 ;i--){
+
+    if (weatherInformations.children.length > 0) {
+        for (let i = weatherInformations.children.length - 1; i >= 0; i--) {
             weatherInformations.removeChild(weatherInformations.children[i])
         }//Remove all the lines of the children
-        
+
     }
-    
+
 
     //Browsing all the datas
     for (let i = 0; i < valuesToDisplay.time.length; i++) {
@@ -87,7 +93,7 @@ function displayInfosOfDay(day) {
     }
 
     //Replacing the current displayed infos by the ones resquested
-   // dataPreview.children[2].replaceWith(weatherInformations)
+    // dataPreview.children[2].replaceWith(weatherInformations)
 
 }
 
@@ -117,7 +123,6 @@ function displayGraphicInfosOfDay(day) {
         }
     })
 
-    console.log(newCanva)
     datasPreview.children[1].children[0].replaceWith(newCanva)
 
 }
@@ -126,6 +131,11 @@ function displayGraphicInfosOfDay(day) {
     Function that call the display method that correspond to the type of datas the user want to display
 */
 function displayRequestedDataForm() {
+    //Make the data visible
+    let datas = document.querySelector("#datas")
+    datas.classList.remove("hidden")
+    datas.classList.add("visible")
+
     let displayTextVersion = document.querySelector("#textVersion")
     let displayGraphicVersion = document.querySelector("#graphicVersion")
     if (displayTextVersion.classList.contains("menuFormPreviewActive")) displayInfosOfDay(currentDay)
@@ -178,7 +188,7 @@ function getLabelForGraph(value) {
                 -classToRemove : A string that is the class to remove
 */
 
-function removeClassForAll(elements, classToRemove){
+function removeClassForAll(elements, classToRemove) {
     elements.forEach(elem => {
         elem.classList.remove(classToRemove)
     });
@@ -188,43 +198,43 @@ function removeClassForAll(elements, classToRemove){
     Set the title of the datas with the given title
     Parameter : -title : A string that is the title to give
 */
-function setTitle(title){
+function setTitle(title) {
     let dayDisplayed = document.querySelector("#datasTitle")
     dayDisplayed.textContent = title.slice(5)
-   
+
 }
 
 /*
     Make the view of the given parameter visible and hide all other views of the options of the #dataPreview
     Parameter : -idOfViewToShow : A String that contains the id of the view we want to show
 */
-function toggleDataTypeView(idOfViewToShow){
+function toggleDataTypeView(idOfViewToShow) {
     let allViews = document.querySelectorAll(".dataDisplayer")
     allViews.forEach(elem => {
-                                if(!elem.classList.contains("hidden")) elem.classList.add("hidden") //We put hidden to all the types of dataDisplayer views
-                                if(elem.classList.contains("visible")) elem.classList.remove("visible")
-                            }) 
+        if (!elem.classList.contains("hidden")) elem.classList.add("hidden") //We put hidden to all the types of dataDisplayer views
+        if (elem.classList.contains("visible")) elem.classList.remove("visible")
+    })
 
     let viewToMakeVisible = document.querySelector(`#${idOfViewToShow}`)
     viewToMakeVisible.classList.remove("hidden")
     viewToMakeVisible.classList.add("visible")
-    console.log(viewToMakeVisible)
+    
 }
 
-function toogleSearchMenu(idMenuToShow){
+function toogleSearchMenu(idMenuToShow) {
     let allMenus = document.querySelectorAll(".searchMenuType")
     allMenus.forEach(elem => {
-                                if(!elem.classList.contains("hidden")) elem.classList.add("hidden") //We put hidden to all the types of dataDisplayer views
-                                if(elem.classList.contains("visible")) elem.classList.remove("visible")
-                            }) 
+        if (!elem.classList.contains("hidden")) elem.classList.add("hidden") //We put hidden to all the types of dataDisplayer views
+        if (elem.classList.contains("visible")) elem.classList.remove("visible")
+    })
 
     let viewToMakeVisible = document.querySelector(`#${idMenuToShow}`)
     viewToMakeVisible.classList.remove("hidden")
     viewToMakeVisible.classList.add("visible")
-    
+
     let searchButtonLatLong = document.querySelector("#searchButtonLatLong")
     let searchButtonAddress = document.querySelector("#searchButtonAddress")
-    if(idMenuToShow === "latitudeAndLongitude"){
+    if (idMenuToShow === "latitudeAndLongitude") {
         searchButtonLatLong.classList.remove("hidden")
         searchButtonLatLong.classList.add("visible")
 
@@ -232,7 +242,7 @@ function toogleSearchMenu(idMenuToShow){
         searchButtonAddress.classList.add("hidden")
 
     }
-    else if(idMenuToShow === "searchAddress"){
+    else if (idMenuToShow === "searchAddress") {
         searchButtonAddress.classList.remove("hidden")
         searchButtonAddress.classList.add("visible")
 
@@ -240,4 +250,35 @@ function toogleSearchMenu(idMenuToShow){
         searchButtonLatLong.classList.add("hidden")
 
     }
+}
+
+function displaySearchPreview(preview) {
+    let searchPreview = document.querySelector("#searchPreview")
+
+    for (let i = searchPreview.children.length - 1; i >= 0; i--) {
+        searchPreview.removeChild(searchPreview.children[i])
+    }
+
+    preview.forEach((hint, index) => {
+        let previewElement = document.createElement("p")
+        previewElement.classList.add("searchPreviewItem")
+        previewElement.textContent = `${Array.from(preview.values())[index].properties.label}` //The properties variable is not directly accessible it as to be done this way
+        searchPreview.appendChild(previewElement)
+
+        previewElement.addEventListener("click", async () => {
+            let searchAddressInput = document.querySelector("#searchAddressInput")
+            searchAddressInput.value = Array.from(preview.values())[index].properties.label
+
+            searchPreview.classList.remove("visible")
+            searchPreview.classList.add("hidden")
+
+            let valueToObserve = document.querySelector("#valueToObserve").value
+            await loadInformations(Array.from(preview.values())[index].geometry.coordinates[1],
+                Array.from(preview.values())[index].geometry.coordinates[0],
+                valueToObserve)
+            displayRequestedDataForm()
+
+        })
+
+    })
 }

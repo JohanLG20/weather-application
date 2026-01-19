@@ -17,6 +17,7 @@
 
 #searchMenu {
     display: flex;
+    position: relative;
     gap: 16px;
     width: 100%;
     padding: 16px;
@@ -42,6 +43,27 @@
     input[type="text"], button, select{
         
         padding: 8px 16px;
+    }
+
+    #searchAddressInput{
+        width: 350px;
+    }
+
+    #searchPreview{
+        position: absolute;
+        flex-direction: column;
+        gap: 16px;
+        width: 350px;
+        z-index: 1;
+        border: 2px solid rgba($color: #777777, $alpha: 0.5);
+        border-bottom: none;
+        top:100%;
+        left:5%;
+
+        .searchPreviewItem{
+            padding: 8px 16px;
+            border-bottom: 2px solid rgba($color: #777777, $alpha: 0.5);
+        }
     }
 }
 

@@ -28,17 +28,39 @@
             <button id="searchButton">Rechercher</button>
         </div>
 
-        <div id="datas">
-            <div id="weatherInformations"></div>
-            <div id="buttons">
-                <button id="previousDayButton" disabled>Jour précédant</button>
-                <button id="nextDayButton">Jour suivant</button>
+        <div id="datas" class="hidden">
+
+            <div id="datasFormPreviewSelection">
+                <p class="menuFormPreview menuFormPreviewActive" id="textVersion">Version textuelle</p>
+                <p class="menuFormPreview" id="graphicVersion">Graphique</p>
             </div>
+
+            <div id="dataPreview">
+
+                <h2 id="datasTitle"></h2>
+
+                <div id="canvas" class="dataDisplayer hidden">
+                    <canvas id="graph" aria-label="chart" role="img"></canvas>
+                </div>
+                
+
+                <div id="weatherInformations"  class="dataDisplayer"></div>
+
+                <div id="buttons">
+                    <button id="previousDayButton" disabled>Jour précédant</button>
+                    <button id="nextDayButton">Jour suivant</button>
+                </div>
+            </div>
+
+
 
         </div>
 
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"
+        integrity="sha512-TW5s0IT/IppJtu76UbysrBH9Hy/5X41OTAbQuffZFU6lQ1rdcLHzpU5BzVvr/YFykoiMYZVWlr/PX1mDcfM9Qg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="scripts/apiCalls.js"></script>
     <script src="scripts/listeners.js"></script>
     <script src="scripts/DayValues.js"></script>

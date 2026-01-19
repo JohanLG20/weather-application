@@ -20,35 +20,67 @@
 }
 
 #datas {
-  display: flex;
   flex-direction: column;
   width: 100%;
   gap: 32px;
 }
-#datas .weatherInformations {
+#datas #datasFormPreviewSelection {
   display: flex;
+  width: 100%;
+  gap: 4px;
+  box-sizing: border-box;
+}
+#datas #datasFormPreviewSelection .menuFormPreview {
+  width: 50%;
+  text-align: center;
+  background-color: lightgrey;
+  padding: 4px 8px;
+  border-radius: 16px 16px 0 0;
+  -webkit-border-radius: 16px 16px 0 0;
+  -moz-border-radius: 16px 16px 0 0;
+  -ms-border-radius: 16px 16px 0 0;
+  -o-border-radius: 16px 16px 0 0;
+}
+#datas #datasFormPreviewSelection .menuFormPreviewActive {
+  background-color: black;
+  color: white;
+  text-align: center;
+}
+#datas #dataPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+#datas #dataPreview #datasTitle {
+  color: blue;
+  text-align: center;
+}
+#datas #dataPreview #weatherInformations {
   flex-direction: column;
   justify-content: center;
   gap: 4px;
 }
-#datas .weatherInformations h2 {
-  text-align: center;
-  color: blue;
-  margin-bottom: 16px;
-}
-#datas .weatherInformations .dataLine {
+#datas #dataPreview #weatherInformations .dataLine {
   display: flex;
   gap: 16px;
   width: 100%;
   justify-content: center;
 }
-#datas #buttons {
+#datas #dataPreview #buttons {
   display: flex;
   width: 100%;
   justify-content: space-around;
 }
-#datas #buttons button {
+#datas #dataPreview #buttons button {
   padding: 8px 16px;
+}
+
+.hidden {
+  display: none;
+}
+
+.visible {
+  display: flex;
 }
 
 /*# sourceMappingURL=style.css.map */

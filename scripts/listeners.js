@@ -1,9 +1,9 @@
 /*
-    Search button
+    Search buttons
 */
-let searchButton = document.querySelector("#searchButton")
+let searchButtonLatLong = document.querySelector("#searchButtonLatLong")
 
-searchButton.addEventListener("click", async () => {
+searchButtonLatLong.addEventListener("click", async () => {
     let valueToObserve = document.querySelector("#valueToObserve").value
     let latitude = parseFloat(document.querySelector("#latitudeInput").value)
     let longitude = parseFloat(document.querySelector("#longitudeInput").value)
@@ -29,6 +29,11 @@ searchButton.addEventListener("click", async () => {
     }
 })
 
+let searchButtonAddress = document.querySelector("#searchButtonAddress")
+
+searchButtonAddress.addEventListener("click", ()=>{
+    alert("yiha")
+})
 /*
     Preview Menu Type selection buttons
 */
@@ -81,4 +86,24 @@ nextDayButton.addEventListener("click", () => {
 
     displayRequestedDataForm()
 
+})
+
+
+/* 
+    Switching search menu
+*/
+let searchMenuTypesIcons = document.querySelectorAll(".switchMenuIcon")
+searchMenuTypesIcons.forEach((icons) =>{
+    icons.addEventListener("click", (e) => {
+        console.log(e.target.id)
+        switch(e.target.id){
+            case "latAndLongIcons":
+                toogleSearchMenu("searchAddress")
+                break;
+            case "searchAddressIcons":
+                toogleSearchMenu("latitudeAndLongitude")
+                break;
+            
+        }
+    })
 })

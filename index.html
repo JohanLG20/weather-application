@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -12,20 +15,32 @@
 
 
     <main class="container">
-        <h1>Prévisions météorologique</h1>
-        <div id="searchMenu">
-            <div id="latitude">
-                <label for="latitude">Latitude</label> <input type="text" name="latitude" id="latitudeInput">
+        <h1>Prévisions météorologique en France</h1>
+        <div id="searchMenu" >
+            <div id="latitudeAndLongitude" class="searchMenuType visible">
+                <i class="fa-solid fa-magnifying-glass switchMenuIcon" id="latAndLongIcons"></i>
+                <div id="latitude">
+                    <label for="latitude">Latitude</label> <input type="text" name="latitude" id="latitudeInput">
+                </div>
+                <div id="longitude">
+                    <label for="longitude">Longitude</label> <input type="text" name="longitude" id="longitudeInput">
+                </div>
             </div>
-            <div id="longitude">
-                <label for="longitude">Longitude</label> <input type="text" name="longitude" id="longitudeInput">
+
+            <div id="searchAddress" class="searchMenuType hidden">
+                <i class="fa-solid fa-location-dot switchMenuIcon" id="searchAddressIcons"></i>
+                <input type="text" placeholder="Entrez une addresse en france">
+
             </div>
+
             <select name="valueToObserve" id="valueToObserve">
                 <option value="temperature">Température</option>
                 <option value="humidity">Humidité</option>
                 <option value="wind">Vent</option>
             </select>
-            <button id="searchButton">Rechercher</button>
+            <button id="searchButtonLatLong" class="visible">Rechercher</button>
+            <button id="searchButtonAddress" class="hidden">Rechercher</button>
+
         </div>
 
         <div id="datas" class="hidden">
@@ -42,9 +57,9 @@
                 <div id="canvas" class="dataDisplayer hidden">
                     <canvas id="graph" aria-label="chart" role="img"></canvas>
                 </div>
-                
 
-                <div id="weatherInformations"  class="dataDisplayer"></div>
+
+                <div id="weatherInformations" class="dataDisplayer"></div>
 
                 <div id="buttons">
                     <button id="previousDayButton" disabled>Jour précédant</button>

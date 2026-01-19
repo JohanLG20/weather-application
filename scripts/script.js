@@ -200,7 +200,6 @@ function setTitle(title){
 */
 function toggleDataTypeView(idOfViewToShow){
     let allViews = document.querySelectorAll(".dataDisplayer")
-    console.log(allViews)
     allViews.forEach(elem => {
                                 if(!elem.classList.contains("hidden")) elem.classList.add("hidden") //We put hidden to all the types of dataDisplayer views
                                 if(elem.classList.contains("visible")) elem.classList.remove("visible")
@@ -210,4 +209,35 @@ function toggleDataTypeView(idOfViewToShow){
     viewToMakeVisible.classList.remove("hidden")
     viewToMakeVisible.classList.add("visible")
     console.log(viewToMakeVisible)
+}
+
+function toogleSearchMenu(idMenuToShow){
+    let allMenus = document.querySelectorAll(".searchMenuType")
+    allMenus.forEach(elem => {
+                                if(!elem.classList.contains("hidden")) elem.classList.add("hidden") //We put hidden to all the types of dataDisplayer views
+                                if(elem.classList.contains("visible")) elem.classList.remove("visible")
+                            }) 
+
+    let viewToMakeVisible = document.querySelector(`#${idMenuToShow}`)
+    viewToMakeVisible.classList.remove("hidden")
+    viewToMakeVisible.classList.add("visible")
+    
+    let searchButtonLatLong = document.querySelector("#searchButtonLatLong")
+    let searchButtonAddress = document.querySelector("#searchButtonAddress")
+    if(idMenuToShow === "latitudeAndLongitude"){
+        searchButtonLatLong.classList.remove("hidden")
+        searchButtonLatLong.classList.add("visible")
+
+        searchButtonAddress.classList.remove("visible")
+        searchButtonAddress.classList.add("hidden")
+
+    }
+    else if(idMenuToShow === "searchAddress"){
+        searchButtonAddress.classList.remove("hidden")
+        searchButtonAddress.classList.add("visible")
+
+        searchButtonLatLong.classList.remove("visible")
+        searchButtonLatLong.classList.add("hidden")
+
+    }
 }

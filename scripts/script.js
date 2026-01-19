@@ -91,6 +91,11 @@ function displayInfosOfDay(day) {
 
 }
 
+/*
+    Replace the last graph with a new graph that display all the datas of the requested day
+    Parameter : - day : A number that contains the day we want to display
+*/
+
 function displayGraphicInfosOfDay(day) {
 
     setTitle(loadedValues.get(day).day)
@@ -117,6 +122,9 @@ function displayGraphicInfosOfDay(day) {
 
 }
 
+/*
+    Function that call the display method that correspond to the type of datas the user want to display
+*/
 function displayRequestedDataForm() {
     let displayTextVersion = document.querySelector("#textVersion")
     let displayGraphicVersion = document.querySelector("#graphicVersion")
@@ -144,6 +152,11 @@ function getCorrectMeasure(info) {
     }
 }
 
+/*
+    Function that returns the value we want to display as the label for the graph
+    Paramater : - value: The API name of the value we want to display
+    Return : - a string which will be the label for the graph
+*/
 function getLabelForGraph(value) {
     switch (value) {
         case "temperature_2m":
@@ -159,19 +172,33 @@ function getLabelForGraph(value) {
     }
 }
 
+/*
+    Function that remove the class in all the given elements
+    Parameter : -elements : An array of HTML elements
+                -classToRemove : A string that is the class to remove
+*/
+
 function removeClassForAll(elements, classToRemove){
     elements.forEach(elem => {
         elem.classList.remove(classToRemove)
     });
 }
 
+/*
+    Set the title of the datas with the given title
+    Parameter : -title : A string that is the title to give
+*/
 function setTitle(title){
     let dayDisplayed = document.querySelector("#datasTitle")
     dayDisplayed.textContent = title.slice(5)
    
 }
 
-function toggleDataTypeView(idOfViewVisible){
+/*
+    Make the view of the given parameter visible and hide all other views of the options of the #dataPreview
+    Parameter : -idOfViewToShow : A String that contains the id of the view we want to show
+*/
+function toggleDataTypeView(idOfViewToShow){
     let allViews = document.querySelectorAll(".dataDisplayer")
     console.log(allViews)
     allViews.forEach(elem => {
@@ -179,7 +206,7 @@ function toggleDataTypeView(idOfViewVisible){
                                 if(elem.classList.contains("visible")) elem.classList.remove("visible")
                             }) 
 
-    let viewToMakeVisible = document.querySelector(`#${idOfViewVisible}`)
+    let viewToMakeVisible = document.querySelector(`#${idOfViewToShow}`)
     viewToMakeVisible.classList.remove("hidden")
     viewToMakeVisible.classList.add("visible")
     console.log(viewToMakeVisible)

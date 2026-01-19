@@ -3,37 +3,55 @@
 */
 let searchButton = document.querySelector("#searchButton")
 
-searchButton.addEventListener("click", () => {
+searchButton.addEventListener("click", async () => {
     let valueToObserve = document.querySelector("#valueToObserve").value
     let latitude = parseFloat(document.querySelector("#latitudeInput").value)
     let longitude = parseFloat(document.querySelector("#longitudeInput").value)
 
     if (!isNaN(latitude) && !isNaN(longitude)) {
-        switch (valueToObserve) {
-            case "temperature":
-                loadInformations(latitude, longitude, "temperature_2m")
-                break;
+        //Loading the information
+        if (valueToObserve === "temperature") await loadInformations(latitude, longitude, "temperature_2m")
+        else if (valueToObserve === "humidity") await loadInformations(latitude, longitude, "relative_humidity_2m")
+        else if (valueToObserve === "wind") await loadInformations(latitude, longitude, "wind_speed_10m")
+        else alert('Une erreur est survenue, veuillez réessayer')
 
-            case "humidity":
-                loadInformations(latitude, longitude, "relative_humidity_2m")
-                break;
-
-            case "wind":
-                loadInformations(latitude, longitude, "wind_speed_10m")
-                break;
-            default:
-                alert('Une erreur est survenue, veuillez réessayer')
-        }
-
+        //Make the data visible
         let datas = document.querySelector("#datas")
         datas.classList.remove("hidden")
         datas.classList.add("visible")
+
+        displayRequestedDataForm() //Displaying the information
         
+
     }
     else {
         alert('Veuillez entrer une latitude et une longitude comprise entre -90 et 90')
     }
 })
+
+/*
+    Preview Menu Type selection buttons
+*/
+let displayTypePreview = document.querySelectorAll(".menuFormPreview")
+
+displayTypePreview.forEach((but) => but.addEventListener("click", (e) => {
+    removeClassForAll(displayTypePreview, "menuFormPreviewActive")
+    e.target.classList.add("menuFormPreviewActive")
+    displayRequestedDataForm()    
+    switch(e.target.id){
+        case "textVersion":
+            toggleDataTypeView("weatherInformations")
+            break;
+        
+        case "graphicVersion":
+            toggleDataTypeView("canvas")
+            break;
+    }
+
+}))
+
+
+
 /*
     Previous/next day buttons
 */
@@ -49,8 +67,7 @@ previousDayButton.addEventListener("click", () => {
         previousDayButton.disabled = true
     }
 
-    displayInfosOfDay(currentDay)
-    displayGraphicInfosOfDay(currentDay)
+    displayRequestedDataForm()
 })
 
 nextDayButton.addEventListener("click", () => {
@@ -58,11 +75,10 @@ nextDayButton.addEventListener("click", () => {
     if (previousDayButton.disabled) previousDayButton.disabled = false
 
     currentDay++
-    if (currentDay === loadedValues.size -1) {
+    if (currentDay === loadedValues.size - 1) {
         nextDayButton.disabled = true
     }
-    
-    displayInfosOfDay(currentDay)
-    displayGraphicInfosOfDay(currentDay)
-})
 
+    displayRequestedDataForm()
+
+})

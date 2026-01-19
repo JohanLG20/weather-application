@@ -8,8 +8,6 @@ async function loadInformations(latitude, longitude, infoToLoad) {
     //Getting all the info from the API call
     const p = await getValuesAtLocation(latitude, longitude, infoToLoad)
     loadedValues = splitValuesDayByDay(p.hourly, infoToLoad)
-    displayInfosOfDay(currentDay)
-    displayGraphicInfosOfDay(currentDay)
 
 }
 
@@ -30,7 +28,7 @@ function splitValuesDayByDay(values, infoToLoad) {
         //We compare the dates of the current tested value and the last
         if (values.time[i].split("T")[0] !== values.time[i - 1].split("T")[0]) {
             //Adding the value to the loadedDatas
-            splittedValue.set(dayCounter, new DayValues(values.time[i - 1].split("T")[0], infoToLoad,tempTime, tempValue))
+            splittedValue.set(dayCounter, new DayValues(values.time[i - 1].split("T")[0], infoToLoad, tempTime, tempValue))
             tempTime = []
             tempValue = []
             dayCounter++
@@ -51,16 +49,24 @@ function splitValuesDayByDay(values, infoToLoad) {
     Parameter : - day : A number that contains the day we want to display
 */
 function displayInfosOfDay(day) {
-
-    let datas = document.querySelector("#datas")
+    let dataPreview = document.querySelector("#dataPreview")
     let valuesToDisplay = loadedValues.get(day)
-    let weatherInformations = document.createElement("div")
-    weatherInformations.classList.add("weatherInformations")
 
-    //Setting the title of the datas as the day displayed
-    let dayDisplayed = document.createElement("h2")
-    dayDisplayed.textContent = valuesToDisplay.day.slice(5)
-    weatherInformations.appendChild(dayDisplayed)
+    /*let weatherInformations = document.createElement("div")
+    weatherInformations.id = "weatherInformations"
+    weatherInformations.classList.add("dataDisplayer") //used for the toggleDataTypeView function*/
+
+    setTitle(loadedValues.get(day).day)
+
+    let weatherInformations = document.querySelector("#weatherInformations")
+    
+    if(weatherInformations.children.length > 0){
+        for(let i = weatherInformations.children.length - 1; i >=0 ;i--){
+            weatherInformations.removeChild(weatherInformations.children[i])
+        }//Remove all the lines of the children
+        
+    }
+    
 
     //Browsing all the datas
     for (let i = 0; i < valuesToDisplay.time.length; i++) {
@@ -81,31 +87,41 @@ function displayInfosOfDay(day) {
     }
 
     //Replacing the current displayed infos by the ones resquested
-    datas.children[1].replaceWith(weatherInformations)
+   // dataPreview.children[2].replaceWith(weatherInformations)
 
 }
 
-function displayGraphicInfosOfDay(day){
-    let datas = document.querySelector("#datas")
-    let newCanva = document.createElement("canvas")
-    newCanva.id = "canvas"
+function displayGraphicInfosOfDay(day) {
 
-    console.log(document)
-    new Chart(newCanva, {
-        type:"line",
-        data:{
+    setTitle(loadedValues.get(day).day)
+
+    let datasPreview = document.querySelector("#dataPreview")
+    let newCanva = document.createElement("canvas")
+    newCanva.id = "graph"
+
+    const graph = new Chart(newCanva, {
+        type: "line",
+        data: {
             labels: loadedValues.get(day).time,
             datasets: [{
                 label: getLabelForGraph(loadedValues.get(day).valueDisplayed),
                 data: loadedValues.get(day).values,
-                backgroundColor:["red"]
-        }]
-            
+                backgroundColor: ["red"]
+            }]
+
         }
     })
 
-    datas.children[0].replaceWith(newCanva)
+    console.log(newCanva)
+    datasPreview.children[1].children[0].replaceWith(newCanva)
 
+}
+
+function displayRequestedDataForm() {
+    let displayTextVersion = document.querySelector("#textVersion")
+    let displayGraphicVersion = document.querySelector("#graphicVersion")
+    if (displayTextVersion.classList.contains("menuFormPreviewActive")) displayInfosOfDay(currentDay)
+    else if (displayGraphicVersion.classList.contains("menuFormPreviewActive")) displayGraphicInfosOfDay(currentDay)
 }
 
 /*
@@ -113,8 +129,8 @@ function displayGraphicInfosOfDay(day){
     Parameter : -info: A string that contain the unit we want. Note, the info as to be the parameter of the API to work
 */
 
-function getCorrectMeasure(info){
-    switch(info){
+function getCorrectMeasure(info) {
+    switch (info) {
         case "temperature_2m":
             return "°"
             break;
@@ -128,8 +144,8 @@ function getCorrectMeasure(info){
     }
 }
 
-function getLabelForGraph(value){
-    switch(value){
+function getLabelForGraph(value) {
+    switch (value) {
         case "temperature_2m":
             return "Température en °C"
             break;
@@ -141,4 +157,30 @@ function getLabelForGraph(value){
         default:
             return ""
     }
+}
+
+function removeClassForAll(elements, classToRemove){
+    elements.forEach(elem => {
+        elem.classList.remove(classToRemove)
+    });
+}
+
+function setTitle(title){
+    let dayDisplayed = document.querySelector("#datasTitle")
+    dayDisplayed.textContent = title.slice(5)
+   
+}
+
+function toggleDataTypeView(idOfViewVisible){
+    let allViews = document.querySelectorAll(".dataDisplayer")
+    console.log(allViews)
+    allViews.forEach(elem => {
+                                if(!elem.classList.contains("hidden")) elem.classList.add("hidden") //We put hidden to all the types of dataDisplayer views
+                                if(elem.classList.contains("visible")) elem.classList.remove("visible")
+                            }) 
+
+    let viewToMakeVisible = document.querySelector(`#${idOfViewVisible}`)
+    viewToMakeVisible.classList.remove("hidden")
+    viewToMakeVisible.classList.add("visible")
+    console.log(viewToMakeVisible)
 }

@@ -1,4 +1,3 @@
-
 let loadedValues = new Map()
 let currentDay = 0
 
@@ -9,7 +8,8 @@ async function loadInformations(latitude, longitude, infoToLoad) {
     //Getting all the info from the API call
     const p = await getValuesAtLocation(latitude, longitude, infoToLoad)
     loadedValues = splitValuesDayByDay(p.hourly, infoToLoad)
-    displayInfosOfDay(currentDay, infoToLoad)
+    displayInfosOfDay(currentDay)
+    displayGraphicInfosOfDay(currentDay)
 
 }
 
@@ -18,29 +18,29 @@ async function loadInformations(latitude, longitude, infoToLoad) {
     Parameter : -values : An object that contain two arrays, one for the time and the other for the temperature
     Return : A map object of DayValue
 */
-function splitValuesDayByDay(values) {
-    console.log(Object.values(values)[1])
+function splitValuesDayByDay(values, infoToLoad) {
+
     let splittedValue = new Map()
-    let tempTime = [values.time[0]]
+    let tempTime = [values.time[0].split("T")[1]] // We get only the hour and not the full date
     let tempValue = [Math.round(Object.values(values)[1][0])]
     let dayCounter = 0
-    console.log(values)
+
     for (let i = 1; i < values.time.length; i++) {
 
         //We compare the dates of the current tested value and the last
         if (values.time[i].split("T")[0] !== values.time[i - 1].split("T")[0]) {
             //Adding the value to the loadedDatas
-            splittedValue.set(dayCounter, new DayValues(values.time[i - 1].split("T")[0], tempTime, tempValue))
+            splittedValue.set(dayCounter, new DayValues(values.time[i - 1].split("T")[0], infoToLoad,tempTime, tempValue))
             tempTime = []
             tempValue = []
             dayCounter++
         }
 
-        tempTime.push(values.time[i])
+        tempTime.push(values.time[i].split("T")[1]) // We get only the hour and not the full date
         tempValue.push(Math.round(Object.values(values)[1][i]))
 
     }
-    splittedValue.set(dayCounter, new DayValues(values.time[values.time.length - 1].split("T")[0], tempTime, tempValue))
+    splittedValue.set(dayCounter, new DayValues(values.time[values.time.length - 1].split("T")[0], infoToLoad, tempTime, tempValue))
 
     return splittedValue
 
@@ -50,7 +50,7 @@ function splitValuesDayByDay(values) {
     Build a div that will contains all the datas of the current day. This div will replace the current one.
     Parameter : - day : A number that contains the day we want to display
 */
-function displayInfosOfDay(day, infoToDisplay) {
+function displayInfosOfDay(day) {
 
     let datas = document.querySelector("#datas")
     let valuesToDisplay = loadedValues.get(day)
@@ -71,8 +71,8 @@ function displayInfosOfDay(day, infoToDisplay) {
         dataLine.classList.add("dataLine")
 
         //Adding the corresponding value to the elements
-        time.textContent = valuesToDisplay.time[i].split("T")[1]
-        val.textContent = `${valuesToDisplay.value[i]}${getCorrectMeasure(infoToDisplay)}` //We add the unit after the value
+        time.textContent = valuesToDisplay.time[i]
+        val.textContent = `${valuesToDisplay.values[i]}${getCorrectMeasure(valuesToDisplay.valueDisplayed)}` //We add the unit after the value
 
         //Adding the elements to the page
         dataLine.appendChild(time)
@@ -81,7 +81,30 @@ function displayInfosOfDay(day, infoToDisplay) {
     }
 
     //Replacing the current displayed infos by the ones resquested
-    datas.children[0].replaceWith(weatherInformations)
+    datas.children[1].replaceWith(weatherInformations)
+
+}
+
+function displayGraphicInfosOfDay(day){
+    let datas = document.querySelector("#datas")
+    let newCanva = document.createElement("canvas")
+    newCanva.id = "canvas"
+
+    console.log(document)
+    new Chart(newCanva, {
+        type:"line",
+        data:{
+            labels: loadedValues.get(day).time,
+            datasets: [{
+                label: getLabelForGraph(loadedValues.get(day).valueDisplayed),
+                data: loadedValues.get(day).values,
+                backgroundColor:["red"]
+        }]
+            
+        }
+    })
+
+    datas.children[0].replaceWith(newCanva)
 
 }
 
@@ -100,6 +123,21 @@ function getCorrectMeasure(info){
             break;
         case "wind_speed_10m":
             return "kmh/h"
+        default:
+            return ""
+    }
+}
+
+function getLabelForGraph(value){
+    switch(value){
+        case "temperature_2m":
+            return "Température en °C"
+            break;
+        case "relative_humidity_2m":
+            return "Humidité en %"
+            break;
+        case "wind_speed_10m":
+            return "Vent en kmh/h"
         default:
             return ""
     }

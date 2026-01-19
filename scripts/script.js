@@ -45,7 +45,7 @@ function splitValuesDayByDay(values, infoToLoad) {
 }
 
 /*
-    Build a div that will contains all the datas of the current day. This div will replace the current one.
+    Populate the div #weatherInformations with all the informations of the current day
     Parameter : - day : A number that contains the day we want to display
 */
 function displayInfosOfDay(day) {

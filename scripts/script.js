@@ -98,6 +98,8 @@ function displayGraphicInfosOfDay(day) {
 
     let formatedLabel = currenDayDisplayed.unitDisplayed.replaceAll("_"," ")
     formatedLabel += " en "+currenDayDisplayed.unit
+    formatedLabel = formatedLabel.replace(formatedLabel[0], formatedLabel[0].toUpperCase())
+    
     const graph = new Chart(newCanva, {
         type: "line",
         data: {

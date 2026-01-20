@@ -7,7 +7,7 @@ let currentDay = 0
 async function loadInformations(latitude, longitude, infoToLoad) {
 
     const p = await getValuesAtLocation(latitude, longitude, infoToLoad)
-    loadedValues = splitValuesDayByDay(p.hourly, Object.values(p.hourly_units)[1]) //We use this Object.values() to not have
+    loadedValues = splitValuesDayByDay(p.hourly, Object.values(p.hourly_units)[1], infoToLoad) //We use this Object.values() to not have
 
 }
 
@@ -16,7 +16,7 @@ async function loadInformations(latitude, longitude, infoToLoad) {
     Parameter : -values : An object that contain two arrays, one for the time and the other for the temperature
     Return : A map object of DayValue
 */
-function splitValuesDayByDay(values, unit) {
+function splitValuesDayByDay(values, unit, infoToLoad) {
 
     let splittedValue = new Map()
     let tempTime = [values.time[0].split("T")[1]] // We get only the hour and not the full date
@@ -28,7 +28,7 @@ function splitValuesDayByDay(values, unit) {
         //We compare the dates of the current tested value and the last
         if (values.time[i].split("T")[0] !== values.time[i - 1].split("T")[0]) {
             //Adding the value to the loadedDatas
-            splittedValue.set(dayCounter, new DayValues(values.time[i - 1], tempTime, tempValue, unit))
+            splittedValue.set(dayCounter, new DayValues(values.time[i - 1], tempTime, tempValue, unit, infoToLoad))
             tempTime = []
             tempValue = []
             dayCounter++
@@ -38,7 +38,7 @@ function splitValuesDayByDay(values, unit) {
         tempValue.push(Math.round(Object.values(values)[1][i]))
 
     }
-    splittedValue.set(dayCounter, new DayValues(values.time[values.time.length - 1], tempTime, tempValue, unit))
+    splittedValue.set(dayCounter, new DayValues(values.time[values.time.length - 1], tempTime, tempValue, unit, infoToLoad))
 
     return splittedValue
 
@@ -89,20 +89,22 @@ function displayInfosOfDay(day) {
     Parameter : - day : A number that contains the day we want to display
 */
 function displayGraphicInfosOfDay(day) {
-
-    setTitle(loadedValues.get(day).day)
+    let currenDayDisplayed = loadedValues.get(day)
+    setTitle(currenDayDisplayed.day)
 
     let datasPreview = document.querySelector("#dataPreview")
     let newCanva = document.createElement("canvas")
     newCanva.id = "graph"
 
+    let formatedLabel = currenDayDisplayed.unitDisplayed.replaceAll("_"," ")
+    formatedLabel += " en "+currenDayDisplayed.unit
     const graph = new Chart(newCanva, {
         type: "line",
         data: {
-            labels: loadedValues.get(day).time,
+            labels: currenDayDisplayed.time,
             datasets: [{
-                label: getLabelForGraph(loadedValues.get(day).valueDisplayed),
-                data: loadedValues.get(day).values,
+                label: formatedLabel,
+                data: currenDayDisplayed.values,
                 backgroundColor: ["red"]
             }]
 

@@ -6,11 +6,12 @@ class DayValues{
 
         The index of the arrays are matched, the i value correspond to the i time.
     */
-    constructor(d, ti, val, un){
+    constructor(d, ti, val, un, di){
         this.day = d
         this.time = ti
         this.values = val
         this.unit = un
+        this.unitDisplayed = di
 
     }
 

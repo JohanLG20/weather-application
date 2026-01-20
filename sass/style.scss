@@ -18,6 +18,7 @@
 #searchMenu {
     display: flex;
     position: relative;
+    z-index:1 ;
     gap: 16px;
     width: 100%;
     padding: 16px;
@@ -52,9 +53,7 @@
     #searchPreview{
         position: absolute;
         flex-direction: column;
-        gap: 16px;
         width: 350px;
-        z-index: 1;
         border: 2px solid rgba($color: #777777, $alpha: 0.5);
         border-bottom: none;
         top:100%;
@@ -63,12 +62,14 @@
         .searchPreviewItem{
             padding: 8px 16px;
             border-bottom: 2px solid rgba($color: #777777, $alpha: 0.5);
+            background-color: white;
         }
     }
 }
 
 #datas {
     flex-direction: column;
+    position: relative;
     width: 100%;
     gap: 32px;
 

@@ -5,15 +5,9 @@ let currentDay = 0
     Function that loads the informations from the API from the latitude and the longitude given by the user.
 */
 async function loadInformations(latitude, longitude, infoToLoad) {
-    //Getting all the info from the API call
-    let apiNameOfValue = ""
 
-    if (infoToLoad === "temperature") apiNameOfValue = "temperature_2m"
-    else if (infoToLoad === "humidity") apiNameOfValue = "relative_humidity_2m"
-    else if (infoToLoad === "wind") apiNameOfValue = "wind_speed_10m"
-
-    const p = await getValuesAtLocation(latitude, longitude, apiNameOfValue)
-    loadedValues = splitValuesDayByDay(p.hourly, apiNameOfValue)
+    const p = await getValuesAtLocation(latitude, longitude, infoToLoad)
+    loadedValues = splitValuesDayByDay(p.hourly, infoToLoad)
 
 }
 
@@ -23,7 +17,7 @@ async function loadInformations(latitude, longitude, infoToLoad) {
     Return : A map object of DayValue
 */
 function splitValuesDayByDay(values, infoToLoad) {
-
+    console.log(values)
     let splittedValue = new Map()
     let tempTime = [values.time[0].split("T")[1]] // We get only the hour and not the full date
     let tempValue = [Math.round(Object.values(values)[1][0])]
@@ -211,43 +205,33 @@ function setTitle(title) {
 function toggleDataTypeView(idOfViewToShow) {
     let allViews = document.querySelectorAll(".dataDisplayer")
     allViews.forEach(elem => {
-        if (!elem.classList.contains("hidden")) elem.classList.add("hidden") //We put hidden to all the types of dataDisplayer views
-        if (elem.classList.contains("visible")) elem.classList.remove("visible")
+        hide(elem)
     })
 
     let viewToMakeVisible = document.querySelector(`#${idOfViewToShow}`)
-    viewToMakeVisible.classList.remove("hidden")
-    viewToMakeVisible.classList.add("visible")
+    show(viewToMakeVisible)
     
 }
 
 function toogleSearchMenu(idMenuToShow) {
     let allMenus = document.querySelectorAll(".searchMenuType")
     allMenus.forEach(elem => {
-        if (!elem.classList.contains("hidden")) elem.classList.add("hidden") //We put hidden to all the types of dataDisplayer views
-        if (elem.classList.contains("visible")) elem.classList.remove("visible")
+        hide(elem)
     })
 
     let viewToMakeVisible = document.querySelector(`#${idMenuToShow}`)
-    viewToMakeVisible.classList.remove("hidden")
-    viewToMakeVisible.classList.add("visible")
+    show(viewToMakeVisible)
 
     let searchButtonLatLong = document.querySelector("#searchButtonLatLong")
     let searchButtonAddress = document.querySelector("#searchButtonAddress")
     if (idMenuToShow === "latitudeAndLongitude") {
-        searchButtonLatLong.classList.remove("hidden")
-        searchButtonLatLong.classList.add("visible")
-
-        searchButtonAddress.classList.remove("visible")
-        searchButtonAddress.classList.add("hidden")
+        show(searchButtonLatLong)
+        hide(searchButtonAddress)
 
     }
     else if (idMenuToShow === "searchAddress") {
-        searchButtonAddress.classList.remove("hidden")
-        searchButtonAddress.classList.add("visible")
-
-        searchButtonLatLong.classList.remove("visible")
-        searchButtonLatLong.classList.add("hidden")
+        show(searchButtonAddress)
+        hide(searchButtonLatLong)
 
     }
 }
@@ -281,4 +265,22 @@ function displaySearchPreview(preview) {
         })
 
     })
+}
+
+/*
+    Hide the given html element
+    Parameter : -element : The element we want to hide
+*/
+function hide(element){
+    element.classList.remove("visible")
+    element.classList.add("hidden")
+}
+
+/*
+    Show the given html element
+    Parameter : -element : The element we want to show
+*/
+function show(element){
+    element.classList.remove("hidden")
+    element.classList.add("visible")
 }

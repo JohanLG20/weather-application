@@ -21,11 +21,6 @@ searchButtonLatLong.addEventListener("click", async () => {
     }
 })
 
-let searchButtonAddress = document.querySelector("#searchButtonAddress")
-searchButtonAddress.addEventListener("click", ()=>{
-    alert("yiha")
-})
-
 /*
     Input text modification
 */
@@ -43,8 +38,7 @@ searchAddressInput.addEventListener("input", () =>{
     }
 
     else{ //Hidding the preview
-        searchPreview.classList.add("hidden")
-        searchPreview.classList.remove("visible")
+        hide(searchPreview)
 
     }
     

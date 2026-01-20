@@ -15,8 +15,47 @@
 
 #searchMenu {
   display: flex;
+  position: relative;
   gap: 16px;
-  width: fit-content;
+  width: 100%;
+  padding: 16px;
+  justify-content: center;
+}
+#searchMenu .searchMenuType {
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+}
+#searchMenu .searchMenuType #latitude {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+#searchMenu .searchMenuType #longitude {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+#searchMenu input[type=text], #searchMenu button, #searchMenu select {
+  padding: 8px 16px;
+}
+#searchMenu #searchAddressInput {
+  width: 350px;
+}
+#searchMenu #searchPreview {
+  position: absolute;
+  flex-direction: column;
+  gap: 16px;
+  width: 350px;
+  z-index: 1;
+  border: 2px solid rgba(119, 119, 119, 0.5);
+  border-bottom: none;
+  top: 100%;
+  left: 5%;
+}
+#searchMenu #searchPreview .searchPreviewItem {
+  padding: 8px 16px;
+  border-bottom: 2px solid rgba(119, 119, 119, 0.5);
 }
 
 #datas {

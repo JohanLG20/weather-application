@@ -1,24 +1,16 @@
 /*
-    Search button
+    Search buttons
 */
-let searchButton = document.querySelector("#searchButton")
+let searchButtonLatLong = document.querySelector("#searchButtonLatLong")
 
-searchButton.addEventListener("click", async () => {
+searchButtonLatLong.addEventListener("click", async () => {
     let valueToObserve = document.querySelector("#valueToObserve").value
     let latitude = parseFloat(document.querySelector("#latitudeInput").value)
     let longitude = parseFloat(document.querySelector("#longitudeInput").value)
 
     if (!isNaN(latitude) && !isNaN(longitude)) {
         //Loading the information
-        if (valueToObserve === "temperature") await loadInformations(latitude, longitude, "temperature_2m")
-        else if (valueToObserve === "humidity") await loadInformations(latitude, longitude, "relative_humidity_2m")
-        else if (valueToObserve === "wind") await loadInformations(latitude, longitude, "wind_speed_10m")
-        else alert('Une erreur est survenue, veuillez réessayer')
-
-        //Make the data visible
-        let datas = document.querySelector("#datas")
-        datas.classList.remove("hidden")
-        datas.classList.add("visible")
+        await loadInformations(latitude, longitude, valueToObserve)
 
         displayRequestedDataForm() //Displaying the information
         
@@ -27,6 +19,29 @@ searchButton.addEventListener("click", async () => {
     else {
         alert('Veuillez entrer une latitude et une longitude comprise entre -90 et 90')
     }
+})
+
+/*
+    Input text modification
+*/
+let searchAddressInput = document.querySelector("#searchAddressInput")
+searchAddressInput.addEventListener("input", () =>{
+    let searchPreview = document.querySelector("#searchPreview")
+    if(searchAddressInput.value.length > 2){ // The api doesn't return anything if there is too few characters   
+        searchPreview.classList.remove("hidden")
+        searchPreview.classList.add("visible")
+        fetch(`https://data.geopf.fr/geocodage/search?q=${searchAddressInput.value}&limit=5`)
+        .then(r => r.json())
+            .then(preview => displaySearchPreview(preview.features))
+        .catch((e) => console.log(e))
+
+    }
+
+    else{ //Hidding the preview
+        hide(searchPreview)
+
+    }
+    
 })
 
 /*
@@ -81,4 +96,24 @@ nextDayButton.addEventListener("click", () => {
 
     displayRequestedDataForm()
 
+})
+
+
+/* 
+    Switching search menu
+*/
+let searchMenuTypesIcons = document.querySelectorAll(".switchMenuIcon")
+searchMenuTypesIcons.forEach((icons) =>{
+    icons.addEventListener("click", (e) => {
+        console.log(e.target.id)
+        switch(e.target.id){
+            case "latAndLongIcons":
+                toogleSearchMenu("searchAddress")
+                break;
+            case "searchAddressIcons":
+                toogleSearchMenu("latitudeAndLongitude")
+                break;
+            
+        }
+    })
 })

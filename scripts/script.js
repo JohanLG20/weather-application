@@ -7,7 +7,7 @@ let currentDay = 0
 async function loadInformations(latitude, longitude, infoToLoad) {
 
     const p = await getValuesAtLocation(latitude, longitude, infoToLoad)
-    loadedValues = splitValuesDayByDay(p.hourly, infoToLoad)
+    loadedValues = splitValuesDayByDay(p.hourly, Object.values(p.hourly_units)[1], infoToLoad) //We use this Object.values() to not have
 
 }
 
@@ -16,8 +16,8 @@ async function loadInformations(latitude, longitude, infoToLoad) {
     Parameter : -values : An object that contain two arrays, one for the time and the other for the temperature
     Return : A map object of DayValue
 */
-function splitValuesDayByDay(values, infoToLoad) {
-    console.log(values)
+function splitValuesDayByDay(values, unit, infoToLoad) {
+
     let splittedValue = new Map()
     let tempTime = [values.time[0].split("T")[1]] // We get only the hour and not the full date
     let tempValue = [Math.round(Object.values(values)[1][0])]
@@ -28,7 +28,7 @@ function splitValuesDayByDay(values, infoToLoad) {
         //We compare the dates of the current tested value and the last
         if (values.time[i].split("T")[0] !== values.time[i - 1].split("T")[0]) {
             //Adding the value to the loadedDatas
-            splittedValue.set(dayCounter, new DayValues(values.time[i - 1].split("T")[0], infoToLoad, tempTime, tempValue))
+            splittedValue.set(dayCounter, new DayValues(values.time[i - 1], tempTime, tempValue, unit, infoToLoad))
             tempTime = []
             tempValue = []
             dayCounter++
@@ -38,7 +38,7 @@ function splitValuesDayByDay(values, infoToLoad) {
         tempValue.push(Math.round(Object.values(values)[1][i]))
 
     }
-    splittedValue.set(dayCounter, new DayValues(values.time[values.time.length - 1].split("T")[0], infoToLoad, tempTime, tempValue))
+    splittedValue.set(dayCounter, new DayValues(values.time[values.time.length - 1], tempTime, tempValue, unit, infoToLoad))
 
     return splittedValue
 
@@ -49,12 +49,8 @@ function splitValuesDayByDay(values, infoToLoad) {
     Parameter : - day : A number that contains the day we want to display
 */
 function displayInfosOfDay(day) {
-    let dataPreview = document.querySelector("#dataPreview")
+    
     let valuesToDisplay = loadedValues.get(day)
-
-    /*let weatherInformations = document.createElement("div")
-    weatherInformations.id = "weatherInformations"
-    weatherInformations.classList.add("dataDisplayer") //used for the toggleDataTypeView function*/
 
     setTitle(loadedValues.get(day).day)
 
@@ -78,7 +74,7 @@ function displayInfosOfDay(day) {
 
         //Adding the corresponding value to the elements
         time.textContent = valuesToDisplay.time[i]
-        val.textContent = `${valuesToDisplay.values[i]}${getCorrectMeasure(valuesToDisplay.valueDisplayed)}` //We add the unit after the value
+        val.textContent = `${valuesToDisplay.values[i]}${valuesToDisplay.unit}` //We add the unit after the value
 
         //Adding the elements to the page
         dataLine.appendChild(time)
@@ -86,31 +82,29 @@ function displayInfosOfDay(day) {
         weatherInformations.appendChild(dataLine)
     }
 
-    //Replacing the current displayed infos by the ones resquested
-    // dataPreview.children[2].replaceWith(weatherInformations)
-
 }
 
 /*
     Replace the last graph with a new graph that display all the datas of the requested day
     Parameter : - day : A number that contains the day we want to display
 */
-
 function displayGraphicInfosOfDay(day) {
-
-    setTitle(loadedValues.get(day).day)
+    let currenDayDisplayed = loadedValues.get(day)
+    setTitle(currenDayDisplayed.day)
 
     let datasPreview = document.querySelector("#dataPreview")
     let newCanva = document.createElement("canvas")
     newCanva.id = "graph"
 
+    let formatedLabel = currenDayDisplayed.unitDisplayed.replaceAll("_"," ")
+    formatedLabel += " en "+currenDayDisplayed.unit
     const graph = new Chart(newCanva, {
         type: "line",
         data: {
-            labels: loadedValues.get(day).time,
+            labels: currenDayDisplayed.time,
             datasets: [{
-                label: getLabelForGraph(loadedValues.get(day).valueDisplayed),
-                data: loadedValues.get(day).values,
+                label: formatedLabel,
+                data: currenDayDisplayed.values,
                 backgroundColor: ["red"]
             }]
 
@@ -137,26 +131,6 @@ function displayRequestedDataForm() {
 }
 
 /*
-    Return the unit of measure of the given parameter.
-    Parameter : -info: A string that contain the unit we want. Note, the info as to be the parameter of the API to work
-*/
-
-function getCorrectMeasure(info) {
-    switch (info) {
-        case "temperature_2m":
-            return "°"
-            break;
-        case "relative_humidity_2m":
-            return "%"
-            break;
-        case "wind_speed_10m":
-            return "kmh/h"
-        default:
-            return ""
-    }
-}
-
-/*
     Function that returns the value we want to display as the label for the graph
     Paramater : - value: The API name of the value we want to display
     Return : - a string which will be the label for the graph
@@ -170,7 +144,7 @@ function getLabelForGraph(value) {
             return "Humidité en %"
             break;
         case "wind_speed_10m":
-            return "Vent en kmh/h"
+            return "Vent en km/h"
         default:
             return ""
     }
@@ -192,9 +166,11 @@ function removeClassForAll(elements, classToRemove) {
     Set the title of the datas with the given title
     Parameter : -title : A string that is the title to give
 */
-function setTitle(title) {
+function setTitle(date) {
     let dayDisplayed = document.querySelector("#datasTitle")
-    dayDisplayed.textContent = title.slice(5)
+    let title = new Date(date)
+
+    dayDisplayed.textContent = title.toDateString()
 
 }
 

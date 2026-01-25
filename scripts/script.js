@@ -1,5 +1,6 @@
 let loadedValues = new Map()
 let currentDay = 0
+let graph = null
 
 /*
     Function that loads the informations from the API from the latitude and the longitude given by the user.
@@ -7,7 +8,9 @@ let currentDay = 0
 async function loadInformations(latitude, longitude, infoToLoad) {
 
     const p = await getValuesAtLocation(latitude, longitude, infoToLoad)
-    loadedValues = splitValuesDayByDay(p.hourly, Object.values(p.hourly_units)[1], infoToLoad) //We use this Object.values() to not have
+    loadedValues = splitValuesDayByDay(p.hourly, Object.values(p.hourly_units)[1], infoToLoad) //We use this Object.values() to not have to specify the data name
+
+
 
 }
 
@@ -22,8 +25,14 @@ function splitValuesDayByDay(values, unit, infoToLoad) {
     let tempTime = [values.time[0].split("T")[1]] // We get only the hour and not the full date
     let tempValue = [Math.round(Object.values(values)[1][0])]
     let dayCounter = 0
+    
+    let weeklyMaximum = 0
+    let weeklyMinimum = 9000000
 
     for (let i = 1; i < values.time.length; i++) {
+
+        if(Object.values(values)[1][i] > weeklyMaximum) weeklyMaximum = Object.values(values)[1][i]
+        if(Object.values(values)[1][i] < weeklyMinimum) weeklyMinimum = Object.values(values)[1][i]
 
         //We compare the dates of the current tested value and the last
         if (values.time[i].split("T")[0] !== values.time[i - 1].split("T")[0]) {
@@ -39,6 +48,9 @@ function splitValuesDayByDay(values, unit, infoToLoad) {
 
     }
     splittedValue.set(dayCounter, new DayValues(values.time[values.time.length - 1], tempTime, tempValue, unit, infoToLoad))
+
+    splittedValue.set("min", weeklyMinimum)
+    splittedValue.set("max", weeklyMaximum)
 
     return splittedValue
 
@@ -91,16 +103,18 @@ function displayInfosOfDay(day) {
 function displayGraphicInfosOfDay(day) {
     let currenDayDisplayed = loadedValues.get(day)
     setTitle(currenDayDisplayed.day)
-
-    let datasPreview = document.querySelector("#dataPreview")
-    let newCanva = document.createElement("canvas")
-    newCanva.id = "graph"
-
-    let formatedLabel = currenDayDisplayed.unitDisplayed.replaceAll("_"," ")
-    formatedLabel += " en "+currenDayDisplayed.unit
-    formatedLabel = formatedLabel.replace(formatedLabel[0], formatedLabel[0].toUpperCase())
     
-    const graph = new Chart(newCanva, {
+    let context = document.querySelector("#graph").getContext("2d")
+   
+    if(graph !== null){
+       graph.destroy()
+
+    }
+    let formatedLabel = currenDayDisplayed.unitDisplayed.replaceAll("_"," ")
+    formatedLabel += " in "+currenDayDisplayed.unit
+    formatedLabel = formatedLabel.replace(formatedLabel[0], formatedLabel[0].toUpperCase()) // Making first character capital
+    
+    graph = new Chart(context, {
         type: "line",
         data: {
             labels: currenDayDisplayed.time,
@@ -110,17 +124,24 @@ function displayGraphicInfosOfDay(day) {
                 backgroundColor: ["red"]
             }]
 
+        },
+
+        options: {
+            scales: {
+                y:{
+                    suggestedMax: loadedValues.get("max"),
+                    suggestedMin: loadedValues.get("min")
+                }
+            }
         }
     })
-
-    datasPreview.children[1].children[0].replaceWith(newCanva)
 
 }
 
 /*
     Function that call the display method that correspond to the type of datas the user want to display
 */
-function displayRequestedDataForm() {
+function displayDatas() {
     //Make the data visible
     let datas = document.querySelector("#datas")
     datas.classList.remove("hidden")
@@ -130,26 +151,6 @@ function displayRequestedDataForm() {
     let displayGraphicVersion = document.querySelector("#graphicVersion")
     if (displayTextVersion.classList.contains("menuFormPreviewActive")) displayInfosOfDay(currentDay)
     else if (displayGraphicVersion.classList.contains("menuFormPreviewActive")) displayGraphicInfosOfDay(currentDay)
-}
-
-/*
-    Function that returns the value we want to display as the label for the graph
-    Paramater : - value: The API name of the value we want to display
-    Return : - a string which will be the label for the graph
-*/
-function getLabelForGraph(value) {
-    switch (value) {
-        case "temperature_2m":
-            return "Température en °C"
-            break;
-        case "relative_humidity_2m":
-            return "Humidité en %"
-            break;
-        case "wind_speed_10m":
-            return "Vent en km/h"
-        default:
-            return ""
-    }
 }
 
 /*
@@ -191,6 +192,9 @@ function toggleDataTypeView(idOfViewToShow) {
     
 }
 
+/*
+
+*/
 function toogleSearchMenu(idMenuToShow) {
     let allMenus = document.querySelectorAll(".searchMenuType")
     allMenus.forEach(elem => {
@@ -238,7 +242,7 @@ function displaySearchPreview(preview) {
             await loadInformations(Array.from(preview.values())[index].geometry.coordinates[1],
                 Array.from(preview.values())[index].geometry.coordinates[0],
                 valueToObserve)
-            displayRequestedDataForm()
+            displayDatas()
 
         })
 
@@ -261,4 +265,8 @@ function hide(element){
 function show(element){
     element.classList.remove("hidden")
     element.classList.add("visible")
+}
+
+function getMinimumValue(values){
+    
 }

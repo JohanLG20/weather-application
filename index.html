@@ -15,7 +15,7 @@
 
 
     <main class="container">
-        <h1>Prévisions météorologique en France</h1>
+        <h1>Weather predictions in France</h1>
         <div id="searchMenu" >
             <div id="latitudeAndLongitude" class="searchMenuType visible">
                 <i class="fa-solid fa-magnifying-glass switchMenuIcon" id="latAndLongIcons"></i>
@@ -34,12 +34,15 @@
             </div>
 
             <select name="valueToObserve" id="valueToObserve">
-                <option value="temperature">Température</option>
-                <option value="humidity">Humidité</option>
-                <option value="wind">Vent</option>
+                <option value="temperature_2m">Temperature</option>
+                <option value="relative_humidity_2m">Humidity</option>
+                <option value="wind_speed_10m">Wind</option>
+                <option value="diffuse_radiation">Diffuse Radiation</option><option value="rain">Rain</option>
+                <option value="surface_pressure">Surface pressure</option>
+
             </select>
-            <button id="searchButtonLatLong" class="visible">Rechercher</button>
-            <button id="searchButtonAddress" class="hidden">Rechercher</button>
+            <button id="searchButtonLatLong" class="visible">Search</button>
+            <button id="searchButtonAddress" class="hidden">Search</button>
 
             <div id="searchPreview" class="hidden">
                 <p>test</p>
@@ -50,8 +53,8 @@
         <div id="datas" class="hidden">
 
             <div id="datasFormPreviewSelection">
-                <p class="menuFormPreview menuFormPreviewActive" id="textVersion">Version textuelle</p>
-                <p class="menuFormPreview" id="graphicVersion">Graphique</p>
+                <p class="menuFormPreview menuFormPreviewActive" id="textVersion">Text version</p>
+                <p class="menuFormPreview" id="graphicVersion">Graphic</p>
             </div>
 
             <div id="dataPreview">
@@ -66,8 +69,8 @@
                 <div id="weatherInformations" class="dataDisplayer"></div>
 
                 <div id="buttons">
-                    <button id="previousDayButton" disabled>Jour précédant</button>
-                    <button id="nextDayButton">Jour suivant</button>
+                    <button id="previousDayButton" disabled>Previous day</button>
+                    <button id="nextDayButton">Next day</button>
                 </div>
             </div>
 

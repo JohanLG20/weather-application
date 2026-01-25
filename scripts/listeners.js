@@ -12,18 +12,13 @@ searchButtonLatLong.addEventListener("click", async () => {
         //Loading the information
         await loadInformations(latitude, longitude, valueToObserve)
 
-        displayRequestedDataForm() //Displaying the information
+        displayDatas() //Displaying the information
         
 
     }
     else {
         alert('Veuillez entrer une latitude et une longitude comprise entre -90 et 90')
     }
-})
-
-let searchButtonAddress = document.querySelector("#searchButtonAddress")
-searchButtonAddress.addEventListener("click", ()=>{
-    alert("yiha")
 })
 
 /*
@@ -43,8 +38,7 @@ searchAddressInput.addEventListener("input", () =>{
     }
 
     else{ //Hidding the preview
-        searchPreview.classList.add("hidden")
-        searchPreview.classList.remove("visible")
+        hide(searchPreview)
 
     }
     
@@ -57,8 +51,8 @@ let displayTypePreview = document.querySelectorAll(".menuFormPreview")
 
 displayTypePreview.forEach((but) => but.addEventListener("click", (e) => {
     removeClassForAll(displayTypePreview, "menuFormPreviewActive")
-    e.target.classList.add("menuFormPreviewActive")
-    displayRequestedDataForm()    
+    e.target.classList.add("menuFormPreviewActive")  
+    displayDatas()
     switch(e.target.id){
         case "textVersion":
             toggleDataTypeView("weatherInformations")
@@ -88,7 +82,7 @@ previousDayButton.addEventListener("click", () => {
         previousDayButton.disabled = true
     }
 
-    displayRequestedDataForm()
+    displayDatas()
 })
 
 nextDayButton.addEventListener("click", () => {
@@ -96,11 +90,11 @@ nextDayButton.addEventListener("click", () => {
     if (previousDayButton.disabled) previousDayButton.disabled = false
 
     currentDay++
-    if (currentDay === loadedValues.size - 1) {
+    if (currentDay === loadedValues.size - 3) { // -3 because there also is the max and the min values in the map
         nextDayButton.disabled = true
     }
 
-    displayRequestedDataForm()
+    displayDatas()
 
 })
 

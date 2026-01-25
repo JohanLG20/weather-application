@@ -1,19 +1,16 @@
 let loadedValues = new Map()
 let currentDay = 0
+let graph = null
 
 /*
     Function that loads the informations from the API from the latitude and the longitude given by the user.
 */
 async function loadInformations(latitude, longitude, infoToLoad) {
-    //Getting all the info from the API call
-    let apiNameOfValue = ""
 
-    if (infoToLoad === "temperature") apiNameOfValue = "temperature_2m"
-    else if (infoToLoad === "humidity") apiNameOfValue = "relative_humidity_2m"
-    else if (infoToLoad === "wind") apiNameOfValue = "wind_speed_10m"
+    const p = await getValuesAtLocation(latitude, longitude, infoToLoad)
+    loadedValues = splitValuesDayByDay(p.hourly, Object.values(p.hourly_units)[1], infoToLoad) //We use this Object.values() to not have to specify the data name
 
-    const p = await getValuesAtLocation(latitude, longitude, apiNameOfValue)
-    loadedValues = splitValuesDayByDay(p.hourly, apiNameOfValue)
+
 
 }
 
@@ -22,19 +19,25 @@ async function loadInformations(latitude, longitude, infoToLoad) {
     Parameter : -values : An object that contain two arrays, one for the time and the other for the temperature
     Return : A map object of DayValue
 */
-function splitValuesDayByDay(values, infoToLoad) {
+function splitValuesDayByDay(values, unit, infoToLoad) {
 
     let splittedValue = new Map()
     let tempTime = [values.time[0].split("T")[1]] // We get only the hour and not the full date
     let tempValue = [Math.round(Object.values(values)[1][0])]
     let dayCounter = 0
+    
+    let weeklyMaximum = 0
+    let weeklyMinimum = 9000000
 
     for (let i = 1; i < values.time.length; i++) {
+
+        if(Object.values(values)[1][i] > weeklyMaximum) weeklyMaximum = Object.values(values)[1][i]
+        if(Object.values(values)[1][i] < weeklyMinimum) weeklyMinimum = Object.values(values)[1][i]
 
         //We compare the dates of the current tested value and the last
         if (values.time[i].split("T")[0] !== values.time[i - 1].split("T")[0]) {
             //Adding the value to the loadedDatas
-            splittedValue.set(dayCounter, new DayValues(values.time[i - 1].split("T")[0], infoToLoad, tempTime, tempValue))
+            splittedValue.set(dayCounter, new DayValues(values.time[i - 1], tempTime, tempValue, unit, infoToLoad))
             tempTime = []
             tempValue = []
             dayCounter++
@@ -44,7 +47,10 @@ function splitValuesDayByDay(values, infoToLoad) {
         tempValue.push(Math.round(Object.values(values)[1][i]))
 
     }
-    splittedValue.set(dayCounter, new DayValues(values.time[values.time.length - 1].split("T")[0], infoToLoad, tempTime, tempValue))
+    splittedValue.set(dayCounter, new DayValues(values.time[values.time.length - 1], tempTime, tempValue, unit, infoToLoad))
+
+    splittedValue.set("min", weeklyMinimum)
+    splittedValue.set("max", weeklyMaximum)
 
     return splittedValue
 
@@ -55,12 +61,8 @@ function splitValuesDayByDay(values, infoToLoad) {
     Parameter : - day : A number that contains the day we want to display
 */
 function displayInfosOfDay(day) {
-    let dataPreview = document.querySelector("#dataPreview")
+    
     let valuesToDisplay = loadedValues.get(day)
-
-    /*let weatherInformations = document.createElement("div")
-    weatherInformations.id = "weatherInformations"
-    weatherInformations.classList.add("dataDisplayer") //used for the toggleDataTypeView function*/
 
     setTitle(loadedValues.get(day).day)
 
@@ -84,7 +86,7 @@ function displayInfosOfDay(day) {
 
         //Adding the corresponding value to the elements
         time.textContent = valuesToDisplay.time[i]
-        val.textContent = `${valuesToDisplay.values[i]}${getCorrectMeasure(valuesToDisplay.valueDisplayed)}` //We add the unit after the value
+        val.textContent = `${valuesToDisplay.values[i]}${valuesToDisplay.unit}` //We add the unit after the value
 
         //Adding the elements to the page
         dataLine.appendChild(time)
@@ -92,45 +94,54 @@ function displayInfosOfDay(day) {
         weatherInformations.appendChild(dataLine)
     }
 
-    //Replacing the current displayed infos by the ones resquested
-    // dataPreview.children[2].replaceWith(weatherInformations)
-
 }
 
 /*
     Replace the last graph with a new graph that display all the datas of the requested day
     Parameter : - day : A number that contains the day we want to display
 */
-
 function displayGraphicInfosOfDay(day) {
+    let currenDayDisplayed = loadedValues.get(day)
+    setTitle(currenDayDisplayed.day)
+    
+    let context = document.querySelector("#graph").getContext("2d")
+   
+    if(graph !== null){
+       graph.destroy()
 
-    setTitle(loadedValues.get(day).day)
-
-    let datasPreview = document.querySelector("#dataPreview")
-    let newCanva = document.createElement("canvas")
-    newCanva.id = "graph"
-
-    const graph = new Chart(newCanva, {
+    }
+    let formatedLabel = currenDayDisplayed.unitDisplayed.replaceAll("_"," ")
+    formatedLabel += " in "+currenDayDisplayed.unit
+    formatedLabel = formatedLabel.replace(formatedLabel[0], formatedLabel[0].toUpperCase()) // Making first character capital
+    
+    graph = new Chart(context, {
         type: "line",
         data: {
-            labels: loadedValues.get(day).time,
+            labels: currenDayDisplayed.time,
             datasets: [{
-                label: getLabelForGraph(loadedValues.get(day).valueDisplayed),
-                data: loadedValues.get(day).values,
+                label: formatedLabel,
+                data: currenDayDisplayed.values,
                 backgroundColor: ["red"]
             }]
 
+        },
+
+        options: {
+            scales: {
+                y:{
+                    suggestedMax: loadedValues.get("max"),
+                    suggestedMin: loadedValues.get("min")
+                }
+            }
         }
     })
-
-    datasPreview.children[1].children[0].replaceWith(newCanva)
 
 }
 
 /*
     Function that call the display method that correspond to the type of datas the user want to display
 */
-function displayRequestedDataForm() {
+function displayDatas() {
     //Make the data visible
     let datas = document.querySelector("#datas")
     datas.classList.remove("hidden")
@@ -140,46 +151,6 @@ function displayRequestedDataForm() {
     let displayGraphicVersion = document.querySelector("#graphicVersion")
     if (displayTextVersion.classList.contains("menuFormPreviewActive")) displayInfosOfDay(currentDay)
     else if (displayGraphicVersion.classList.contains("menuFormPreviewActive")) displayGraphicInfosOfDay(currentDay)
-}
-
-/*
-    Return the unit of measure of the given parameter.
-    Parameter : -info: A string that contain the unit we want. Note, the info as to be the parameter of the API to work
-*/
-
-function getCorrectMeasure(info) {
-    switch (info) {
-        case "temperature_2m":
-            return "°"
-            break;
-        case "relative_humidity_2m":
-            return "%"
-            break;
-        case "wind_speed_10m":
-            return "kmh/h"
-        default:
-            return ""
-    }
-}
-
-/*
-    Function that returns the value we want to display as the label for the graph
-    Paramater : - value: The API name of the value we want to display
-    Return : - a string which will be the label for the graph
-*/
-function getLabelForGraph(value) {
-    switch (value) {
-        case "temperature_2m":
-            return "Température en °C"
-            break;
-        case "relative_humidity_2m":
-            return "Humidité en %"
-            break;
-        case "wind_speed_10m":
-            return "Vent en kmh/h"
-        default:
-            return ""
-    }
 }
 
 /*
@@ -198,9 +169,11 @@ function removeClassForAll(elements, classToRemove) {
     Set the title of the datas with the given title
     Parameter : -title : A string that is the title to give
 */
-function setTitle(title) {
+function setTitle(date) {
     let dayDisplayed = document.querySelector("#datasTitle")
-    dayDisplayed.textContent = title.slice(5)
+    let title = new Date(date)
+
+    dayDisplayed.textContent = title.toDateString()
 
 }
 
@@ -211,43 +184,36 @@ function setTitle(title) {
 function toggleDataTypeView(idOfViewToShow) {
     let allViews = document.querySelectorAll(".dataDisplayer")
     allViews.forEach(elem => {
-        if (!elem.classList.contains("hidden")) elem.classList.add("hidden") //We put hidden to all the types of dataDisplayer views
-        if (elem.classList.contains("visible")) elem.classList.remove("visible")
+        hide(elem)
     })
 
     let viewToMakeVisible = document.querySelector(`#${idOfViewToShow}`)
-    viewToMakeVisible.classList.remove("hidden")
-    viewToMakeVisible.classList.add("visible")
+    show(viewToMakeVisible)
     
 }
 
+/*
+
+*/
 function toogleSearchMenu(idMenuToShow) {
     let allMenus = document.querySelectorAll(".searchMenuType")
     allMenus.forEach(elem => {
-        if (!elem.classList.contains("hidden")) elem.classList.add("hidden") //We put hidden to all the types of dataDisplayer views
-        if (elem.classList.contains("visible")) elem.classList.remove("visible")
+        hide(elem)
     })
 
     let viewToMakeVisible = document.querySelector(`#${idMenuToShow}`)
-    viewToMakeVisible.classList.remove("hidden")
-    viewToMakeVisible.classList.add("visible")
+    show(viewToMakeVisible)
 
     let searchButtonLatLong = document.querySelector("#searchButtonLatLong")
     let searchButtonAddress = document.querySelector("#searchButtonAddress")
     if (idMenuToShow === "latitudeAndLongitude") {
-        searchButtonLatLong.classList.remove("hidden")
-        searchButtonLatLong.classList.add("visible")
-
-        searchButtonAddress.classList.remove("visible")
-        searchButtonAddress.classList.add("hidden")
+        show(searchButtonLatLong)
+        hide(searchButtonAddress)
 
     }
     else if (idMenuToShow === "searchAddress") {
-        searchButtonAddress.classList.remove("hidden")
-        searchButtonAddress.classList.add("visible")
-
-        searchButtonLatLong.classList.remove("visible")
-        searchButtonLatLong.classList.add("hidden")
+        show(searchButtonAddress)
+        hide(searchButtonLatLong)
 
     }
 }
@@ -276,9 +242,31 @@ function displaySearchPreview(preview) {
             await loadInformations(Array.from(preview.values())[index].geometry.coordinates[1],
                 Array.from(preview.values())[index].geometry.coordinates[0],
                 valueToObserve)
-            displayRequestedDataForm()
+            displayDatas()
 
         })
 
     })
+}
+
+/*
+    Hide the given html element
+    Parameter : -element : The element we want to hide
+*/
+function hide(element){
+    element.classList.remove("visible")
+    element.classList.add("hidden")
+}
+
+/*
+    Show the given html element
+    Parameter : -element : The element we want to show
+*/
+function show(element){
+    element.classList.remove("hidden")
+    element.classList.add("visible")
+}
+
+function getMinimumValue(values){
+    
 }

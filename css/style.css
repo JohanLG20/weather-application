@@ -37,7 +37,9 @@
   gap: 8px;
   align-items: center;
 }
-#searchMenu input[type=text], #searchMenu button, #searchMenu select {
+#searchMenu input[type=text],
+#searchMenu button,
+#searchMenu select {
   padding: 8px 16px;
 }
 #searchMenu #searchAddressInput {
@@ -56,6 +58,11 @@
   padding: 8px 16px;
   border-bottom: 2px solid rgba(119, 119, 119, 0.5);
   background-color: white;
+}
+#searchMenu label {
+  display: flex;
+  gap: 8px;
+  align-self: center;
 }
 
 #datas {
@@ -96,15 +103,36 @@
   text-align: center;
 }
 #datas #dataPreview #weatherInformations {
-  flex-direction: column;
-  justify-content: center;
+  margin: 0 auto;
   gap: 4px;
 }
-#datas #dataPreview #weatherInformations .dataLine {
-  display: flex;
-  gap: 16px;
-  width: 100%;
-  justify-content: center;
+#datas #dataPreview #weatherInformations table {
+  border-collapse: collapse;
+  border: 2px solid rgb(140, 140, 140);
+  font-family: sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+#datas #dataPreview #weatherInformations table thead,
+#datas #dataPreview #weatherInformations table tfoot {
+  background-color: rgb(228, 240, 245);
+}
+#datas #dataPreview #weatherInformations table th,
+#datas #dataPreview #weatherInformations table td {
+  border: 1px solid rgb(160, 160, 160);
+  padding: 4px 8px;
+}
+#datas #dataPreview #weatherInformations table td:last-of-type {
+  text-align: center;
+}
+#datas #dataPreview #weatherInformations table tbody > tr:nth-of-type(even) {
+  background-color: rgb(237, 238, 242);
+}
+#datas #dataPreview #weatherInformations table tfoot th {
+  text-align: right;
+}
+#datas #dataPreview #weatherInformations table tfoot td {
+  font-weight: bold;
 }
 #datas #dataPreview #buttons {
   display: flex;

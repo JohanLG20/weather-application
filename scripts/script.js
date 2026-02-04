@@ -1,4 +1,4 @@
-let loadedValues = new Map()
+let loadedValues
 let currentDay = 0
 let graph = null
 
@@ -6,53 +6,66 @@ let graph = null
     Function that loads the informations from the API from the latitude and the longitude given by the user.
 */
 async function loadInformations(latitude, longitude, infoToLoad) {
-
     const p = await getValuesAtLocation(latitude, longitude, infoToLoad)
-    loadedValues = splitValuesDayByDay(p.hourly, Object.values(p.hourly_units)[1], infoToLoad) //We use this Object.values() to not have to specify the data name
 
+    let dataCheckboxes = document.querySelectorAll(".dataCheckboxes")
+    let valuesNames = getAllValuesNames(dataCheckboxes)
 
-
+    loadedValues = splitValuesDayByDay(p.hourly, Object.values(p.hourly_units), infoToLoad, valuesNames) //We use this Object.values() to not have to specify the data name
+    
+    
+    
 }
 
 /* 
     Function that return a map where each value is a DayValue that contain all the values for one day.
     Parameter : -values : An object that contain two arrays, one for the time and the other for the temperature
-    Return : A map object of DayValue
+    Return : A Data object
 */
-function splitValuesDayByDay(values, unit, infoToLoad) {
+function splitValuesDayByDay(valuesInObject, unitsInObject, infoToLoad, valuesNames) {
 
-    let splittedValue = new Map()
-    let tempTime = [values.time[0].split("T")[1]] // We get only the hour and not the full date
-    let tempValue = [Math.round(Object.values(values)[1][0])]
-    let dayCounter = 0
-    
-    let weeklyMaximum = 0
-    let weeklyMinimum = 9000000
+    let dayVal = []
+    let values = Object.values(valuesInObject)
+    let units = Object.values(unitsInObject)
 
-    for (let i = 1; i < values.time.length; i++) {
+    let times = values[0]
+    values.splice(0, 1) //We split the times and the values in two different variables for an easier code
+    units.splice(0, 1) //We remove the unit of the time to only keep the units of the weather values
 
-        if(Object.values(values)[1][i] > weeklyMaximum) weeklyMaximum = Object.values(values)[1][i]
-        if(Object.values(values)[1][i] < weeklyMinimum) weeklyMinimum = Object.values(values)[1][i]
 
-        //We compare the dates of the current tested value and the last
-        if (values.time[i].split("T")[0] !== values.time[i - 1].split("T")[0]) {
-            //Adding the value to the loadedDatas
-            splittedValue.set(dayCounter, new DayValues(values.time[i - 1], tempTime, tempValue, unit, infoToLoad))
+    let tempTime = [times[0].split("T")[1]] // We get only the hour and not the full date
+    let tempValues = []
+    for (let val = 0; val < values.length; val++) {//We push all the values that the API gave us
+        tempValues.push([values[val][0]])
+    }
+    let day = 0
+
+    for (let i = 1; i < values[0].length; i++) {
+        if (times[i].split("T")[0] !== times[i - 1].split("T")[0]) {
+            dayVal.push(new DayValues(times[i - 1].split("T")[0], tempTime, tempValues))
             tempTime = []
-            tempValue = []
-            dayCounter++
+            tempValues = []
+            for (let val = 0; val < values.length; val++) {//We push all the values that the API gave us
+                tempValues.push([])
+            }
+            day++
+
         }
 
-        tempTime.push(values.time[i].split("T")[1]) // We get only the hour and not the full date
-        tempValue.push(Math.round(Object.values(values)[1][i]))
+        tempTime.push(times[i].split("T")[1])
+        for (let val = 0; val < values.length; val++) {//We push all the values that the API gave us
+            tempValues[val].push(values[val][i])
+        }
 
     }
-    splittedValue.set(dayCounter, new DayValues(values.time[values.time.length - 1], tempTime, tempValue, unit, infoToLoad))
 
-    splittedValue.set("min", weeklyMinimum)
-    splittedValue.set("max", weeklyMaximum)
+    dayVal.push(new DayValues(times[times.length - 1].split("T")[0], tempTime, tempValues))
 
-    return splittedValue
+    let datas = new Datas(dayVal, units, infoToLoad, valuesNames)
+
+    console.log(datas)
+
+    return datas
 
 }
 
@@ -61,37 +74,52 @@ function splitValuesDayByDay(values, unit, infoToLoad) {
     Parameter : - day : A number that contains the day we want to display
 */
 function displayInfosOfDay(day) {
-    
-    let valuesToDisplay = loadedValues.get(day)
 
-    setTitle(loadedValues.get(day).day)
+    let valuesToDisplay = loadedValues.values[day]
 
-    let weatherInformations = document.querySelector("#weatherInformations")
+    //Creating the header
+    let weatherInformationsHeader = document.querySelector("#weatherInformations thead tr")
+    if (weatherInformationsHeader.children.length > 0) {
+        for (let i = weatherInformationsHeader.children.length - 1; i >= 0; i--) {
+            weatherInformationsHeader.removeChild(weatherInformationsHeader.children[i])
+        }//Remove all the lines of the children
 
-    if (weatherInformations.children.length > 0) {
-        for (let i = weatherInformations.children.length - 1; i >= 0; i--) {
-            weatherInformations.removeChild(weatherInformations.children[i])
+    }
+    let time = document.createElement("th") 
+    time.scope = "col"
+    time.textContent = "Time"
+    weatherInformationsHeader.appendChild(time)
+
+    for(let i = 0; i < loadedValues.unit.length; i++){
+        let valName = document.createElement("th")
+        valName.scope = "col"
+        valName.textContent = `${loadedValues.valuesNames[i]} (${loadedValues.unit[i]})`
+        weatherInformationsHeader.appendChild(valName)
+    }
+
+    let weatherInformationsBody = document.querySelector("#weatherInformations tbody")
+    if (weatherInformationsBody.children.length > 0) {
+        for (let i = weatherInformationsBody.children.length - 1; i >= 0; i--) {
+            weatherInformationsBody.removeChild(weatherInformationsBody.children[i])
         }//Remove all the lines of the children
 
     }
 
-
-    //Browsing all the datas
     for (let i = 0; i < valuesToDisplay.time.length; i++) {
-        //Creating the elements
-        dataLine = document.createElement("div")
-        let time = document.createElement("p")
-        let val = document.createElement("p")
-        dataLine.classList.add("dataLine")
+        let dataValue = document.createElement("tr")
 
-        //Adding the corresponding value to the elements
-        time.textContent = valuesToDisplay.time[i]
-        val.textContent = `${valuesToDisplay.values[i]}${valuesToDisplay.unit}` //We add the unit after the value
+        let timeValue = document.createElement("th")
+        timeValue.scope = "row"
+        timeValue.textContent = valuesToDisplay.time[i]
+        dataValue.appendChild(timeValue)
 
-        //Adding the elements to the page
-        dataLine.appendChild(time)
-        dataLine.appendChild(val)
-        weatherInformations.appendChild(dataLine)
+        for(let val = 0; val < valuesToDisplay.values.length; val++){
+            let value = document.createElement("td")
+            value.textContent = `${valuesToDisplay.values[val][i]} ${loadedValues.unit[val]}`
+            dataValue.appendChild(value)
+        }
+
+        weatherInformationsBody.appendChild(dataValue)
     }
 
 }
@@ -101,19 +129,18 @@ function displayInfosOfDay(day) {
     Parameter : - day : A number that contains the day we want to display
 */
 function displayGraphicInfosOfDay(day) {
-    let currenDayDisplayed = loadedValues.get(day)
-    setTitle(currenDayDisplayed.day)
-    
+    let currenDayDisplayed = loadedValues.values[day]
+
     let context = document.querySelector("#graph").getContext("2d")
-   
-    if(graph !== null){
-       graph.destroy()
+
+    if (graph !== null) {
+        graph.destroy()
 
     }
-    let formatedLabel = currenDayDisplayed.unitDisplayed.replaceAll("_"," ")
-    formatedLabel += " in "+currenDayDisplayed.unit
+    let formatedLabel = currenDayDisplayed.unitDisplayed.replaceAll("_", " ")
+    formatedLabel += " in " + currenDayDisplayed.unit
     formatedLabel = formatedLabel.replace(formatedLabel[0], formatedLabel[0].toUpperCase()) // Making first character capital
-    
+
     graph = new Chart(context, {
         type: "line",
         data: {
@@ -128,7 +155,7 @@ function displayGraphicInfosOfDay(day) {
 
         options: {
             scales: {
-                y:{
+                y: {
                     suggestedMax: loadedValues.get("max"),
                     suggestedMin: loadedValues.get("min")
                 }
@@ -146,6 +173,8 @@ function displayDatas() {
     let datas = document.querySelector("#datas")
     datas.classList.remove("hidden")
     datas.classList.add("visible")
+
+    setTitle(loadedValues.values[currentDay].day)
 
     let displayTextVersion = document.querySelector("#textVersion")
     let displayGraphicVersion = document.querySelector("#graphicVersion")
@@ -189,7 +218,7 @@ function toggleDataTypeView(idOfViewToShow) {
 
     let viewToMakeVisible = document.querySelector(`#${idOfViewToShow}`)
     show(viewToMakeVisible)
-    
+
 }
 
 /*
@@ -253,7 +282,7 @@ function displaySearchPreview(preview) {
     Hide the given html element
     Parameter : -element : The element we want to hide
 */
-function hide(element){
+function hide(element) {
     element.classList.remove("visible")
     element.classList.add("hidden")
 }
@@ -262,11 +291,30 @@ function hide(element){
     Show the given html element
     Parameter : -element : The element we want to show
 */
-function show(element){
+function show(element) {
     element.classList.remove("hidden")
     element.classList.add("visible")
 }
 
-function getMinimumValue(values){
-    
+function getAllCheckedValues(elements) {
+    let result = ""
+    for (let checkbox of elements) {
+        if (checkbox.checked) {
+            result += `,${checkbox.value}`
+        }
+    }
+
+    return result.slice(1) //Remove the first coma of the string
+}
+
+function getAllValuesNames(elements){
+
+    let result = []
+    for (let checkbox of elements) {
+        if (checkbox.checked) {
+            result.push(checkbox.parentElement.textContent)
+        }
+    }
+    console.log(elements)
+    return result
 }

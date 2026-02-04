@@ -16,7 +16,7 @@
 
     <main class="container">
         <h1>Weather predictions in France</h1>
-        <div id="searchMenu" >
+        <div id="searchMenu">
             <div id="latitudeAndLongitude" class="searchMenuType visible">
                 <i class="fa-solid fa-magnifying-glass switchMenuIcon" id="latAndLongIcons"></i>
                 <div id="latitude">
@@ -33,14 +33,14 @@
 
             </div>
 
-            <select name="valueToObserve" id="valueToObserve">
-                <option value="temperature_2m">Temperature</option>
-                <option value="relative_humidity_2m">Humidity</option>
-                <option value="wind_speed_10m">Wind</option>
-                <option value="diffuse_radiation">Diffuse Radiation</option><option value="rain">Rain</option>
-                <option value="surface_pressure">Surface pressure</option>
+            
+            <label>Temperature <input type="checkbox" class="dataCheckboxes" value="temperature_2m"/></label>
+            <label>Humidity <input type="checkbox" class="dataCheckboxes" value="relative_humidity_2m"/></label>
+            <label>Wind <input type="checkbox" class="dataCheckboxes" value="wind_speed_10m"/></label>
+            <label>Diffuse radiations <input type="checkbox" class="dataCheckboxes" value="diffuse_radiation"/></label>
+            <label>Rain <input type="checkbox" class="dataCheckboxes" value="rain"/></label>
+            <label>Surface pressure <input type="checkbox" class="dataCheckboxes" value="surface_pressure"/></label>
 
-            </select>
             <button id="searchButtonLatLong" class="visible">Search</button>
             <button id="searchButtonAddress" class="hidden">Search</button>
 
@@ -62,11 +62,24 @@
                 <h2 id="datasTitle"></h2>
 
                 <div id="canvas" class="dataDisplayer hidden">
+                    <fieldset>
+                        <legend>Choose a value to display</legend>
+                        
+                    </fieldset>
                     <canvas id="graph" aria-label="chart" role="img"></canvas>
                 </div>
 
 
-                <div id="weatherInformations" class="dataDisplayer"></div>
+                <div id="weatherInformations" class="dataDisplayer">
+                    <table>
+                        <thead>
+                            <tr></tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
 
                 <div id="buttons">
                     <button id="previousDayButton" disabled>Previous day</button>
@@ -85,8 +98,10 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="scripts/apiCalls.js"></script>
     <script src="scripts/listeners.js"></script>
+    <script src="scripts/Datas.js"></script>
     <script src="scripts/DayValues.js"></script>
     <script src="scripts/script.js"></script>
+
 
 </body>
 
